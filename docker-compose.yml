@@ -1,0 +1,17 @@
+---
+
+services:
+  app:
+    build: .
+    volumes:
+      - ./:/opt/app:delegated
+
+  solr:
+    image: solr:${SOLR_VERSION:-8.11.1}
+    restart: always
+    ports:
+      - 8983:8983
+    volumes:
+      - ./solr:/var/solr/data/configsets/solr:delegated
+
+version: "3.7"
