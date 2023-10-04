@@ -1,25 +1,74 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    activesupport (7.0.8)
+      concurrent-ruby (~> 1.0, >= 1.0.2)
+      i18n (>= 1.6, < 2)
+      minitest (>= 5.1)
+      tzinfo (~> 2.0)
+    addressable (2.8.5)
+      public_suffix (>= 2.0.2, < 6.0)
     base64 (0.1.1)
+    builder (3.2.4)
+    concurrent-ruby (1.2.2)
+    connection_pool (2.4.1)
+    crass (1.0.6)
+    dotenv (2.8.1)
     faraday (2.7.11)
       base64
       faraday-net_http (>= 2.0, < 3.1)
       ruby2_keywords (>= 0.0.4)
     faraday-net_http (3.0.2)
+    faraday-net_http_persistent (2.1.0)
+      faraday (~> 2.5)
+      net-http-persistent (~> 4.0)
+    geo_combine (0.8.0)
+      activesupport
+      faraday-net_http_persistent (~> 2.0)
+      git
+      json-schema
+      nokogiri
+      rsolr
+      sanitize
+      thor
     geoserver-publish (0.6.0)
       faraday (~> 2.2)
+    git (1.18.0)
+      addressable (~> 2.8)
+      rchardet (~> 1.8)
+    i18n (1.14.1)
+      concurrent-ruby (~> 1.0)
+    json-schema (4.1.1)
+      addressable (>= 2.8)
+    minitest (5.16.3)
+    net-http-persistent (4.0.2)
+      connection_pool (~> 2.2)
     nokogiri (1.15.4-x86_64-linux)
       racc (~> 1.4)
+    public_suffix (5.0.3)
     racc (1.7.1)
+    rchardet (1.8.0)
+    rsolr (2.5.0)
+      builder (>= 2.1.2)
+      faraday (>= 0.9, < 3, != 2.0.0)
     ruby2_keywords (0.0.5)
+    rubyzip (2.3.2)
+    sanitize (6.1.0)
+      crass (~> 1.0.2)
+      nokogiri (>= 1.12.0)
+    thor (1.2.2)
+    tzinfo (2.0.6)
+      concurrent-ruby (~> 1.0)
 
 PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
+  dotenv
+  geo_combine
   geoserver-publish
-  nokogiri
+  rsolr
+  rubyzip
 
 RUBY VERSION
    ruby 3.2.2p53

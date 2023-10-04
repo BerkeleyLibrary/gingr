@@ -1,0 +1,41 @@
+require 'thor'
+
+# test sub
+class SubCommandBase < Thor
+  def self.banner(command, _namespace = nil, _subcommand: false)
+    "#{basename} #{subcommand_prefix} #{command.usage}"
+  end
+
+  def self.subcommand_prefix
+    name.gsub(/.*::/, '').gsub(/^[A-Z]/) do |match|
+      match[0].downcase
+    end.gsub(/[A-Z]/) { |match| "-#{match[0].downcase}" }
+  end
+end
+
+module App
+  # test
+  class Docs < SubCommandBase
+    desc 'create', 'create docs'
+    def create
+      # create
+    end
+
+    desc 'publish', 'publish docs'
+    def publish
+      # publish
+    end
+  end
+
+  # class
+  class CLI < Thor
+    def self.exit_on_failure?
+      true
+    end
+
+    desc 'docs', 'create and publish docs'
+    subcommand 'docs', Docs
+  end
+end
+
+App::CLI.start

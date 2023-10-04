@@ -1,0 +1,52 @@
+{
+  "dct_title_s": "Intersections, San Benito County, California, 2016",
+  "dct_alternative_sm": [
+    "City Boundaries, Butte County, California"
+  ],
+  "dct_description_sm": [
+    "This dataset contains point features that show where centerlines intersect in San Benito County, California in 2016."
+  ],
+  "dct_language_sm": [
+    "eng"
+  ],
+  "dct_publisher_sm": [
+    "San Benito County (Calif.) -- Information Technology"
+  ],
+  "schema_provider_s": "Berkeley",
+  "gbl_resourceClass_sm": [
+    "Datasets"
+  ],
+  "gbl_resourceType_sm": [
+    "Point Data"
+  ],
+  "dcat_keyword_sm": [
+    "Transportation",
+    "Roads--interchanges and Intersections"
+  ],
+  "dct_issued_s": "2016-05-12",
+  "gbl_indexYear_im": [
+    2016
+  ],
+  "dct_spatial_sm": [
+    "San Benito County (Calif.)"
+  ],
+  "locn_geometry": "ENVELOPE(-121.647244, -120.61654, 36.991453, 36.180115)",
+  "dct_accessRights_s": "Public",
+  "dct_format_s": "Shapefile",
+  "gbl_wxsIdentifier_s": "s7038h",
+  "dct_references_s": "{\"http://www.opengis.net/def/serviceType/ogc/wfs\":\"https://geoservices.lib.berkeley.edu/geoserver/wfs\",\"http://www.opengis.net/def/serviceType/ogc/wms\":\"https://geoservices.lib.berkeley.edu/geoserver/wms\",\"http://www.isotc211.org/schemas/2005/gmd/\":\"https://spatial.lib.berkeley.edu/metadata/berkeley-s7038h/iso19139.xml\",\"http://schema.org/downloadUrl\":\"https://spatial.lib.berkeley.edu/public/berkeley-s7038h/data.zip\"}",
+  "id": "berkeley-s7038h",
+  "dct_identifier_sm": [
+    "https://spatial.lib.berkeley.edu/viewpublic/berkeley-s7038h"
+  ],
+  "gbl_mdModified_dt": "2018-02-23T23:34:35.206Z",
+  "gbl_mdVersion_s": "Aardvark",
+  "gbl_displayNote_sm": [
+    "Danger: This text will be displayed in a red box",
+    "Info: This text will be displayed in a blue box",
+    "Tip: This text will be displayed in a green box",
+    "Warning: This text will be displayed in a yellow box",
+    "This is text without a tag and it will be assigned the default 'note' style"
+  ],
+  "gbl_fileSize_s": "1500MB"
+}
