@@ -10,11 +10,14 @@ module Gingr
   class Import < Thor
     desc 'Index json files to solr', 'Index json files from a directory to solr'
     option :solr_url
+    option :reference_urls, :type => :hash
     def solr(dir_path)
       solr_url = options[:solr_url] || ENV['SOLR_URL']
       puts("!!!!!!!!!!")
+      puts(options[:reference_urls].class)
       puts(solr_url)
-      indexer = Gingr::Indexer.new(solr_url)
+      reference_urls = options[:reference_urls]
+      indexer = Gingr::Indexer.new(solr_url, reference_urls)
       Find.find(dir_path) do |path|
         next unless File.extname(path).downcase == '.json'
 

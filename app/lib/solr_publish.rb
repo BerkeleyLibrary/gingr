@@ -12,12 +12,9 @@ module Gingr
     attr_reader :solr
     attr_reader :reference_urls 
 
-    def self.reference_urls(hash)
-      @reference_urls = hash
-    end
-
-    def initialize(url)
+    def initialize(url, reference_url = nil)
       @solr = RSolr.connect url:, adapter: :net_http_persistent
+      @reference_urls  = reference_urls 
     end
 
     def update(file_path)
@@ -30,6 +27,8 @@ module Gingr
     end
 
     def update_reference(doc)
+      return uless @reference_urls 
+      
       geoserver_secure_url_production = 'a'
       geoserver_url_production = 'b '
       geoserver_secure_url = ENV.fetch('GEOSERVER_SECURE_URL', 'http://admin:geoserver@geoserver:8080/geoserver/rest/')
