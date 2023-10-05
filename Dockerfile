@@ -1,8 +1,6 @@
 
 FROM ruby:3.2.2
-ENV SOLR_URL http://solr:8983/solr/geodata-test
-ENV GEOSERVER_SECURE_URL http://admin:geoserver@localhost:8080/geoserver/rest/
-ENV GEOSERVER_URL http://admin:geoserver@localhost:8080/geoserver/rest/
+
 RUN mkdir -p /opt/app 
 RUN apt-get update -qq 
 

@@ -3,7 +3,7 @@
 source 'https://rubygems.org'
 
 ruby '3.2.2'
-gem 'dotenv'
+# gem 'dotenv'
 gem 'geo_combine'
 gem 'geoserver-publish'
 gem 'rsolr'

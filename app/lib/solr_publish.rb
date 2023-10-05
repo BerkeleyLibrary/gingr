@@ -1,42 +1,48 @@
 # frozen_string_literal: true
 
-# require 'net/http'
-# require 'json'
 require 'rsolr'
-# require 'find'
+require 'json'
 require 'faraday/net_http_persistent'
+require_relative 'config'
 
+# Ginger module
 module Gingr
+  include Gingr::Config
   # index solr for Gingr
   class Indexer
     attr_reader :solr
-    attr_reader :reference_urls 
 
-    def initialize(url, reference_url = nil)
+    def initialize(url)
+      puts(url)
+      url = "http://localhost:8983/solr/#/geodata-test"
       @solr = RSolr.connect url:, adapter: :net_http_persistent
-      @reference_urls  = reference_urls 
     end
 
-    def update(file_path)
-      commit_within = 5000
+    def update(file_path, _update_domain)
+      commit_within = 500
       doc = JSON.parse(File.read(file_path))
-      update_reference(doc)
-      solr.update params: { commitWithin: commit_within, overwrite: true },
-                  data: doc.to_json,
-                  headers: { 'Content-Type' => 'application/json' }
+      # puts(doc)
+      # update_domains(doc) if update_domain
+      # @solr.update params: { commitWithin: commit_within, overwrite: true },
+      #             data: doc.to_json,
+      #             headers: { 'Content-Type' => 'application/json' }
     end
 
-    def update_reference(doc)
-      return uless @reference_urls 
-      
-      geoserver_secure_url_production = 'a'
-      geoserver_url_production = 'b '
-      geoserver_secure_url = ENV.fetch('GEOSERVER_SECURE_URL', 'http://admin:geoserver@geoserver:8080/geoserver/rest/')
-      geoserver_url = ENV.fetch('GEOSERVER_URL', 'http://admin:geoserver@geoserver:8080/geoserver/rest/')
-      reference = doc['dct_references_s']
-      reference_updated = reference.gsub(geoserver_secure_url, geoserver_secure_url_production) \
-                                   .gsub(geoserver_url, geoserver_url_production)
-      doc['reference'] = reference_updated
+    def update_domains(doc)
+      references = doc['dct_references_s']
+      Config.domains.each do |k, v|
+        # puts(v)
+        t_v = domain(ENV[k.to_s])
+        references.gsub(v, t_v) unless t_v.nil?
+      end
+      doc['reference'] = references
+    end
+
+    def domain(url)
+      return '' if url.nil?
+
+      uri = URI.parse(url)
+      uri.host
     end
   end
 end

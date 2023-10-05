@@ -1,28 +1,21 @@
 # frozen_string_literal: true
 
 require 'thor'
-# require 'bundler/setup'
 require_relative '../lib/solr_publish'
-# require 'dotenv/load'
 require 'find'
 
 module Gingr
   class Import < Thor
     desc 'Index json files to solr', 'Index json files from a directory to solr'
     option :solr_url
-    option :reference_urls, :type => :hash
+    option :update_domain, type: :boolean, default: false
     def solr(dir_path)
       solr_url = options[:solr_url] || ENV['SOLR_URL']
-      puts("!!!!!!!!!!")
-      puts(options[:reference_urls].class)
-      puts(solr_url)
-      reference_urls = options[:reference_urls]
-      indexer = Gingr::Indexer.new(solr_url, reference_urls)
+      indexer = Indexer.new(solr_url)
       Find.find(dir_path) do |path|
         next unless File.extname(path).downcase == '.json'
 
-        puts(path)
-        # indexer.update(path)
+        indexer.update(path, options[:update_domain])
       rescue RSolr::Error::Http => e
         puts e
       end
@@ -57,5 +50,3 @@ module Gingr
 end
 
 Gingr::Import.start(ARGV)
-
-

@@ -1,2 +1,3 @@
 /log/*
 .irb_history
+.bash_history
