@@ -9,7 +9,7 @@ services:
       SOLR_URL: http://solr:8983/solr/geodata-test
       GEOSERVER_SECURE_URL: http://admin:geoserver@localhost:8080/geoserver/rest/
       GEOSERVER_URL: http://admin:geoserver@localhost:8080/geoserver/rest/
-      SOURCE_URL: https://spatial.lib.berkeley.edu/
+      DOWNLOAD_URL: https://spatial.lib.berkeley.edu/
 
   solr:
     image: solr:${SOLR_VERSION:-8.11.1}

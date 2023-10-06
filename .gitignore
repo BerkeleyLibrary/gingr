@@ -1,3 +1,4 @@
 /log/*
+/zold_app/*
 .irb_history
 .bash_history

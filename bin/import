@@ -1,0 +1,89 @@
+# frozen_string_literal: true
+
+require 'thor'
+require_relative '../lib/solr_publish'
+require 'find'
+
+
+# require 'net/http'
+# require 'rsolr'
+# require 'json'
+# require 'faraday/net_http_persistent'
+
+module Gingr
+  class Import < Thor
+    desc 'Index json files to solr', 'Index json files from a directory to solr'
+    option :solr_url
+    option :update_domain, type: :boolean, default: false
+    def solr(dir_path)
+      solr_url = options[:solr_url] || ENV['SOLR_URL']
+      indexer = Indexer.new(solr_url)
+      Find.find(dir_path) do |path|
+        next unless File.extname(path).downcase == '.json'
+
+        indexer.update(path, options[:update_domain])
+      rescue RSolr::Error::Http => e
+        # puts e
+        # puts "Solr HTTP Error: #{e.message}"
+        puts "Response body: #{e.response}"
+      end
+      indexer.solr.commit
+    end
+  
+    def self.exit_on_failure?
+      true
+    end
+
+  end
+end
+
+Gingr::Import.start(ARGV)
+    # desc 'test solr', 'test solr'
+    # def test_solr(ogm_path)
+    #   solr_url = "http://solr:8983/solr/geodata-test"
+    #   solr = RSolr.connect url: solr_url, adapter: :net_http_persistent
+    #   Find.find(ogm_path) do |path|
+    #     next unless File.extname(path).downcase == '.json'
+     
+    
+    #       doc = JSON.parse(File.read(path))
+    #       [doc].flatten.each do |record|
+    #         # puts(record)
+    #         # next unless record['dc_rights_s'].downcase == 'public'
+    
+    #         # puts "Indexing #{record['layer_slug_s']}: #{path}" # if $DEBUG
+    #         # puts("Indexing #{record['dct_title_s']}: --- #{path}") # if $DEBUG
+    #         solr.update params: { commitWithin: commit_within, overwrite: true },
+    #                     data: [record].to_json,
+    #                     headers: { 'Content-Type' => 'application/json' }
+    #       end
+    #   rescue RSolr::Error::Http => e
+    #     puts e
+    #   end
+    #     solr.commit
+    #   end
+
+    # end
+
+    # desc 'hello NAME', 'say hello to NAME'
+    # option :from
+    # def geoserver(name)
+    #   puts "from: #{options[:from]}" if options[:from]
+    #   puts "Hello #{name}"
+    # end
+
+    # desc 'hello NAME', 'say hello to NAME'
+    # option :from
+    # def sourc_file(name)
+    #   puts "from: #{options[:from]}" if options[:from]
+    #   puts "Hello #{name}"
+    # end
+
+    # desc 'hello NAME', 'say hello to NAME'
+    # option :from
+    # def all(name)
+    #   puts "from: #{options[:from]}" if options[:from]
+    #   puts "Hello #{name}"
+    # end
+
+
