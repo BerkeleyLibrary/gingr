@@ -13,7 +13,6 @@ GEM
     concurrent-ruby (1.2.2)
     connection_pool (2.4.1)
     crass (1.0.6)
-    dotenv (2.8.1)
     faraday (2.7.11)
       base64
       faraday-net_http (>= 2.0, < 3.1)
@@ -61,10 +60,11 @@ GEM
       concurrent-ruby (~> 1.0)
 
 PLATFORMS
+  x86_64-darwin-22
   x86_64-linux
 
 DEPENDENCIES
-  dotenv
+  faraday-net_http_persistent (~> 2.0)
   geo_combine
   geoserver-publish
   rsolr

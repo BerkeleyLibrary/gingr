@@ -4,10 +4,12 @@
 module Gingr
   # config info
   module Config
-    @domains = {
-      GEOSERVER_SECURE: 'geoservices-secure.lib.berkeley.edu',
-      GEOSERVER: 'geoservices.lib.berkeley.edu/geoserver/',
-      DOWNLOAD: 'spatial.lib.berkeley.edu'
+    # key: environment varable name
+    # value: domain from pre-ingestion tool
+    @env_domains = {
+      GEOSERVER_SECURE_URL: 'geoservices-secure.lib.berkeley.edu',
+      GEOSERVER_URL: 'geoservices.lib.berkeley.edu/geoserver/',
+      DOWNLOAD_URL: 'spatial.lib.berkeley.edu'
     }
     class << self
       attr_accessor :domains

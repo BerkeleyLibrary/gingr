@@ -1,34 +1,37 @@
 # frozen_string_literal: true
 
 require 'thor'
-require_relative '../lib/solr_publish'
+require_relative '../lib/solr_indexer'
+require_relative '../lib/geoserver_publisher'
 require 'find'
-
-
-# require 'net/http'
-# require 'rsolr'
-# require 'json'
-# require 'faraday/net_http_persistent'
 
 module Gingr
   class Import < Thor
-    desc 'Index json files to solr', 'Index json files from a directory to solr'
+    desc 'solr index from a directory', 'Index json files from a directory to solr'
     option :solr_url
-    option :update_domain, type: :boolean, default: false
+    option :change_reference_domain, type: :boolean, default: false
     def solr(dir_path)
       solr_url = options[:solr_url] || ENV['SOLR_URL']
-      indexer = Indexer.new(solr_url)
+      commit_within = options[:commit_within] || 5000
+      indexer = SolrIndexer.new(solr_url)
       Find.find(dir_path) do |path|
         next unless File.extname(path).downcase == '.json'
 
-        indexer.update(path, options[:update_domain])
+        indexer.update(path, options[:change_reference_domain])
       rescue RSolr::Error::Http => e
-        # puts e
-        # puts "Solr HTTP Error: #{e.message}"
         puts "Response body: #{e.response}"
       end
       indexer.solr.commit
     end
+
+    desc 'publish a geofile', 'publish a geofile with basename to geoserver after this geofile moved to geoserver'
+    option :geoserver_url
+    def geoserver(filename)
+      geoserver_url = options[:geoserver_url] || ENV['GEOSERVER_URL']
+      publisher = GeoserverPublisher.new(geoserver_url)
+      publisher.update(filename)
+    end
+
   
     def self.exit_on_failure?
       true
