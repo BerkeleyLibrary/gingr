@@ -11,9 +11,12 @@ module Gingr
       GEOSERVER_URL: 'geoservices.lib.berkeley.edu/geoserver/',
       DOWNLOAD_URL: 'spatial.lib.berkeley.edu'
     }
+
+    @ingestion_dirname = "ingestion_files"
+    
     class << self
       attr_accessor :domains
-
+      attr_accessor :ingestion_dirname
       include Config
     end
   end

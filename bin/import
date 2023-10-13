@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
 require 'thor'
+require_relative '../lib/data_extractor'
 require_relative '../lib/solr_indexer'
 require_relative '../lib/geoserver_publisher'
 require 'find'
+require 'json'
 
 module Gingr
   class Import < Thor
@@ -32,7 +34,23 @@ module Gingr
       publisher.update(filename)
     end
 
-  
+    desc 'unpack zip file to a directory', 'unpack a zip file to a directory'
+    option :spatial_root
+    option :geoserver_root
+    def unpack(zipfile)
+      DataExtractor.spatial_root = spatial_root = options[:spatial_root] || ENV['SPATIAL_ROOT']
+      DataExtractor.geoserver_root = options[:geoserver_root] || ENV['GEOSERVER_ROOT']
+
+      extractor = DataExtractor.new()
+      temp_path = File.join(Dir.pwd, File.basename(zipfile, ".*"))
+      extractor.unzip(zipfile, temp_path)
+
+      ingestion_files_path = File.join(temp_path, Config.ingestion_dirname)
+      ingestion_files_path.children.select(&:directory?).each do |dir|
+        extractor.move_files_from_dir(dir)
+      end
+    end
+
     def self.exit_on_failure?
       true
     end

@@ -58,6 +58,7 @@ GEM
     thor (1.2.2)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
+    uri (0.12.1)
 
 PLATFORMS
   x86_64-darwin-22
@@ -69,6 +70,7 @@ DEPENDENCIES
   geoserver-publish
   rsolr
   rubyzip
+  uri
 
 RUBY VERSION
    ruby 3.2.2p53
