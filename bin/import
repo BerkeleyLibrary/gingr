@@ -28,10 +28,21 @@ module Gingr
 
     desc 'publish a geofile', 'publish a geofile with basename to geoserver after this geofile moved to geoserver'
     option :geoserver_url
-    def geoserver(filename)
+    def geoserver_file(filename)
       geoserver_url = options[:geoserver_url] || ENV['GEOSERVER_URL']
       publisher = GeoserverPublisher.new(geoserver_url)
       publisher.update(filename)
+    end
+
+    desc 'publish a geofile', 'publish a geofile with basename to geoserver after this geofile moved to geoserver'
+    option :geoserver_url
+    def geoserver(dir_path)
+        Find.find(dir_path) do |path|
+          next unless File.extname(path).downcase in ['.shp', 'tiff']
+
+          basename = File.basename(file_path)
+          geoserver_file(basename)
+        end
     end
 
     desc 'unpack zip file to a directory', 'unpack a zip file to a directory'
@@ -47,9 +58,37 @@ module Gingr
 
       ingestion_files_path = File.join(temp_path, Config.ingestion_dirname)
       ingestion_files_path.children.select(&:directory?).each do |dir|
-        extractor.move_files_from_dir(dir)
+        extractor.move_files(dir)
       end
+      return temp_path
     end
+
+    desc 'move, index and publish all files to related servers', 'move all souce files and metadata files to apache server, index all geoblacklight json files to solr, publish all geofiles to geoserver'
+    option :spatial_root
+    option :geoserver_root
+    option :solr_url
+    option :change_reference_domain, type: :boolean, default: false
+    option :geoserver_url
+    option :spatial_root
+    option :geoserver_root
+    def all(zipfile)
+      temp_path = unpack(zipfile)
+      solr(temp_path)
+      ingestion_dirs(temp_path) do |dir_path|
+        Find.find(dir_path) do |file_path|
+          next unless File.extname(file_path).downcase in ['.shp', 'tiff']
+
+          basename = File.basename(file_path)
+          geoserver(basename)
+        end
+      end
+      
+    end
+
+    # def ingestion_dirs(temp_path)
+    #   ingestion_files_path = File.join(temp_path, Config.ingestion_dirname)
+    #   ingestion_files_path.children.select(&:directory?)
+    # end
 
     def self.exit_on_failure?
       true

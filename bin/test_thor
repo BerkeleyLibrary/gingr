@@ -1,0 +1,31 @@
+# frozen_string_literal: true
+
+require 'thor'
+
+class TestThor < Thor
+    desc "hello NAME", "say hello to NAME"
+    option :color
+    def hello(name)
+      color = options[:color]
+      puts "Hello #{name} - #{color}"
+      done = good_morning(name)
+      puts(done)
+      
+      
+    end
+
+    desc "good morning NAME", "say good morning to NAME"
+    option :color
+    def good_morning(name)
+      color = options[:color]
+      puts "Good morning #{name} -- #{color}"
+      return "done"
+    end
+
+
+    def self.exit_on_failure?
+        true
+      end
+end
+
+TestThor.start(ARGV)
