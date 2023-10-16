@@ -1,20 +1,20 @@
 # frozen_string_literal: true
 
 require 'thor'
-require_relative '../lib/data_extractor'
+require_relative '../lib/data_transfer_handler'
 require_relative '../lib/solr_indexer'
 require_relative '../lib/geoserver_publisher'
 require 'find'
 require 'json'
 
 module Gingr
+  # ingestion tasks
   class Import < Thor
-    desc 'solr index from a directory', 'Index json files from a directory to solr'
+    desc 'solr index within directory', 'Index json files from a directory to solr'
     option :solr_url
     option :change_reference_domain, type: :boolean, default: false
     def solr(dir_path)
       solr_url = options[:solr_url] || ENV['SOLR_URL']
-      commit_within = options[:commit_within] || 5000
       indexer = SolrIndexer.new(solr_url)
       Find.find(dir_path) do |path|
         next unless File.extname(path).downcase == '.json'
@@ -26,44 +26,66 @@ module Gingr
       indexer.solr.commit
     end
 
-    desc 'publish a geofile', 'publish a geofile with basename to geoserver after this geofile moved to geoserver'
+    desc 'publish a geofile', 'tt'
+    # long_desc <<-LONGDESC
+    #      publish a geofile with inputs of file basename and access type to geoserver,#{' '}
+    #      the geofile should have been already moved to geoserver before runng this task'
+    # LONGDESC
     option :geoserver_url
-    def geoserver_file(filename)
-      geoserver_url = options[:geoserver_url] || ENV['GEOSERVER_URL']
+    option :geoserver_root
+    def geoserver(filename, access)
+      geoserver_root = options[:geoserver_root] || ENV['GEOSERVER_ROOT']
+
+      url = access == 'public' ? ENV['GEOSERVER_URL'] : ENV['GEOSERVER_SECURE_URL']
+      geoserver_url = options[:geoserver_url] || url
+
+      GeoserverPublisher.geoserver_root = geoserver_root
+      GeoserverPublisher.access = access
+
       publisher = GeoserverPublisher.new(geoserver_url)
       publisher.update(filename)
-    end
-
-    desc 'publish a geofile', 'publish a geofile with basename to geoserver after this geofile moved to geoserver'
-    option :geoserver_url
-    def geoserver(dir_path)
-        Find.find(dir_path) do |path|
-          next unless File.extname(path).downcase in ['.shp', 'tiff']
-
-          basename = File.basename(file_path)
-          geoserver_file(basename)
-        end
     end
 
     desc 'unpack zip file to a directory', 'unpack a zip file to a directory'
     option :spatial_root
     option :geoserver_root
     def unpack(zipfile)
-      DataExtractor.spatial_root = spatial_root = options[:spatial_root] || ENV['SPATIAL_ROOT']
-      DataExtractor.geoserver_root = options[:geoserver_root] || ENV['GEOSERVER_ROOT']
+      DataTansferHandler.spatial_root = options[:spatial_root] || ENV['SPATIAL_ROOT']
+      DataTansferHandler.geoserver_root = options[:geoserver_root] || ENV['GEOSERVER_ROOT']
 
-      extractor = DataExtractor.new()
-      temp_path = File.join(Dir.pwd, File.basename(zipfile, ".*"))
-      extractor.unzip(zipfile, temp_path)
+      temp_path = File.join(Dir.pwd, 'temp', File.basename(zipfile, '.*'))
+      # data_transfer_handler = DataTansferHandler.new
+      # data_transfer_handler.extract_zipfile(zipfile, temp_path)
 
-      ingestion_files_path = File.join(temp_path, Config.ingestion_dirname)
-      ingestion_files_path.children.select(&:directory?).each do |dir|
-        extractor.move_files(dir)
+      ingestion_dirs(temp_path) do |dir|
+        data_transfer_handler.move_ingestion_files(dir)
       end
-      return temp_path
+      temp_path
     end
 
-    desc 'move, index and publish all files to related servers', 'move all souce files and metadata files to apache server, index all geoblacklight json files to solr, publish all geofiles to geoserver'
+    # desc 'unpack zip file to a directory', 'unpack a zip file to a directory'
+    # option :spatial_root
+    # option :geoserver_root
+    # def unpack(zipfile)
+    #   DataTansferHandler.spatial_root = options[:spatial_root] || ENV['SPATIAL_ROOT']
+    #   DataTansferHandler.geoserver_root = options[:geoserver_root] || ENV['GEOSERVER_ROOT']
+
+    #   temp_path = File.join(Dir.pwd, 'temp', File.basename(zipfile, '.*'))
+    #   data_transfer_handler = DataTansferHandler.new
+    #   data_transfer_handler.unzip(zipfile, temp_path)
+
+    #   ingestion_dirs(temp_path) do |dir|
+    #     data_transfer_handler.move_ingestion_files(dir)
+    #   end
+    #   temp_path
+    # end
+
+    desc 'move, index and publish all files to related servers', 'tt'
+    # long_desc <<-LONGDESC
+    #       1) move all souce files and metadata files to apache server,#{' '}
+    #       2) index all geoblacklight json files to solr,#{' '}
+    #       3) publish all geofiles to geoserver
+    # LONGDESC
     option :spatial_root
     option :geoserver_root
     option :solr_url
@@ -74,76 +96,34 @@ module Gingr
     def all(zipfile)
       temp_path = unpack(zipfile)
       solr(temp_path)
-      ingestion_dirs(temp_path) do |dir_path|
-        Find.find(dir_path) do |file_path|
+      ingestion_dirs(temp_path) do |dir|
+        Find.find(dir) do |file_path|
           next unless File.extname(file_path).downcase in ['.shp', 'tiff']
 
-          basename = File.basename(file_path)
-          geoserver(basename)
+          filename = File.basename(file_path)
+          geoserver(filename, access)
         end
       end
-      
     end
 
-    # def ingestion_dirs(temp_path)
-    #   ingestion_files_path = File.join(temp_path, Config.ingestion_dirname)
-    #   ingestion_files_path.children.select(&:directory?)
-    # end
+    def ingestion_dirs(temp_path)
+      ingestion_files_path = File.join(temp_path, Config.ingestion_dirname)
+      x = Dir.each_child(ingestion_files_path)(&:directory?) 
+      puts x
+    end
+
+    def sub_directories(directory
+
+    def access_type(dir)
+      json_filepath = File.join(dir, 'geoblacklight.json')
+      json_data = File.read(json_filepath)
+      data_hash = JSON.parse(json_data)
+      data_hash['dct_accessRights_s'].downcase == 'public' ? 'public' : 'UCB'
+    end
 
     def self.exit_on_failure?
       true
     end
-
   end
 end
-
 Gingr::Import.start(ARGV)
-    # desc 'test solr', 'test solr'
-    # def test_solr(ogm_path)
-    #   solr_url = "http://solr:8983/solr/geodata-test"
-    #   solr = RSolr.connect url: solr_url, adapter: :net_http_persistent
-    #   Find.find(ogm_path) do |path|
-    #     next unless File.extname(path).downcase == '.json'
-     
-    
-    #       doc = JSON.parse(File.read(path))
-    #       [doc].flatten.each do |record|
-    #         # puts(record)
-    #         # next unless record['dc_rights_s'].downcase == 'public'
-    
-    #         # puts "Indexing #{record['layer_slug_s']}: #{path}" # if $DEBUG
-    #         # puts("Indexing #{record['dct_title_s']}: --- #{path}") # if $DEBUG
-    #         solr.update params: { commitWithin: commit_within, overwrite: true },
-    #                     data: [record].to_json,
-    #                     headers: { 'Content-Type' => 'application/json' }
-    #       end
-    #   rescue RSolr::Error::Http => e
-    #     puts e
-    #   end
-    #     solr.commit
-    #   end
-
-    # end
-
-    # desc 'hello NAME', 'say hello to NAME'
-    # option :from
-    # def geoserver(name)
-    #   puts "from: #{options[:from]}" if options[:from]
-    #   puts "Hello #{name}"
-    # end
-
-    # desc 'hello NAME', 'say hello to NAME'
-    # option :from
-    # def sourc_file(name)
-    #   puts "from: #{options[:from]}" if options[:from]
-    #   puts "Hello #{name}"
-    # end
-
-    # desc 'hello NAME', 'say hello to NAME'
-    # option :from
-    # def all(name)
-    #   puts "from: #{options[:from]}" if options[:from]
-    #   puts "Hello #{name}"
-    # end
-
-

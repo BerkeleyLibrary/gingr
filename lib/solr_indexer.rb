@@ -14,7 +14,6 @@ module Gingr
     def initialize(url)
       @solr = RSolr.connect url:, adapter: :net_http_persistent
     end
- 
 
     def update(file_path, change_reference_domain)
       commit_within = ENV.fetch('SOLR_COMMIT_WITHIN', 5000).to_i
@@ -22,8 +21,8 @@ module Gingr
       [doc].flatten.each do |record|
         update_domains!(record) if change_reference_domain
         @solr.update params: { commitWithin: commit_within, overwrite: true },
-                    data: [record].to_json,
-                    headers: { 'Content-Type' => 'application/json' }
+                     data: [record].to_json,
+                     headers: { 'Content-Type' => 'application/json' }
       end
     end
 
@@ -34,13 +33,12 @@ module Gingr
         references.gsub(domain, to_domain) unless to_domain.nil?
       end
       record['reference'] = references
-      
     end
 
     def domain(env)
       url = ENV.fetch(env)
       return nil if url.nil?
-      
+
       uri = URI.parse(url)
       uri.host
     end

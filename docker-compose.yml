@@ -13,6 +13,9 @@ services:
 
       DOWNLOAD_URL: https://spatial.lib.berkeley.edu/
 
+      SPATIAL_ROOT: geofiles/spatial
+      GEOSERVER_ROOT: geofiles/geoserver
+
   solr:
     image: solr:${SOLR_VERSION:-8.11.1}
     restart: always
