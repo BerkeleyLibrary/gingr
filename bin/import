@@ -56,8 +56,9 @@ module Gingr
       temp_path = File.join(Dir.pwd, 'temp', File.basename(zipfile, '.*'))
       # data_transfer_handler = DataTansferHandler.new
       # data_transfer_handler.extract_zipfile(zipfile, temp_path)
-
-      ingestion_dirs(temp_path) do |dir|
+      puts temp_path
+      subdirectory_paths(temp_path) do |dir|
+        puts dir
         data_transfer_handler.move_ingestion_files(dir)
       end
       temp_path
@@ -107,12 +108,26 @@ module Gingr
     end
 
     def ingestion_dirs(temp_path)
-      ingestion_files_path = File.join(temp_path, Config.ingestion_dirname)
-      x = Dir.each_child(ingestion_files_path)(&:directory?) 
-      puts x
+      # ingestion_files_path = File.join(temp_path, Config.ingestion_dirname)
+      # x = Dir.each_child(ingestion_files_path)(&:directory?)
+      # puts x
     end
 
-    def sub_directories(directory
+    def subdirectory_paths(directory_path)
+      Dir.children(directory_path)
+         .map { |sub| File.join(directory_path, sub) }
+         .select { |path| File.directory?(path) }
+    end
+
+    # def subdirectory_paths(directory_path)
+    #   paths = []
+    #   Dir.each_child(directory_path) do |sub|
+    #     subdirectory_path = File.join(directory_path, sub)
+    #     next unless File.directory? subdirectory_path
+    #       paths << subdirectory_path
+    #   end
+    #   paths
+    # end
 
     def access_type(dir)
       json_filepath = File.join(dir, 'geoblacklight.json')
