@@ -21,7 +21,7 @@ module Gingr
         extract_zipfile(zip_file, extract_path)
 
         geofile_ingestion_dir_path = move_files(extract_path)
-        { solr_indexer_dir: extract_path, geoserver_publisher_dir: get_geofile_dirs(geofile_ingestion_dir_path) }
+        { jsonfile_dir_list: extract_path, geofile_name_hash: get_geofile_name_hash(geofile_ingestion_dir_path) }
       end
 
       # workflow to be discuss: need to remove the extract_path before extract zipfile?
@@ -70,25 +70,38 @@ module Gingr
         Pathname(directory_path).children.select(&:file?)
       end
 
-      def get_geofile_dirs(directory_path)
-        public_dirs = []
-        ucb_dirs = []
-        subdirectory_list(directory_path).each do |dir|
-          access = access_type(dir)
-          access == 'public' ? public_dirs << dir : ucb_dirs << dir
+      def get_geofile_name_hash(directory_path)
+        public_names = []
+        ucb_names = []
+        subdirectory_list(directory_path).each do |sub_dir|
+          access = access_type(sub_dir)
+          name = geofile_basename(sub_dir)
+          access == 'public' ? public_names << name : ucb_names << name
         end
         { public: public_dirs, ucb: ucb_dirs }
       end
 
       def access_type(dir)
-        json_filepath = File.join(dir, 'geoblacklight.json')
-        json_data = File.read(json_filepath)
-        data_hash = JSON.parse(json_data)
-        data_hash['dct_accessRights_s'] = 'Public' # fake data
-        data_hash['dct_accessRights_s'].downcase == 'public' ? 'public' : 'ucb'
+        value = field_value(dir, 'dct_accessRights_s').downcase
+        # value = 'Public' # fake data
+        value == 'public' ? 'public' : 'ucb'
       end
 
       private
+
+      def geofile_basename(dir)
+        basename = File.basename(dir)
+        value = field_value(dir, 'dct_format_s').downcase
+        ext = value == 'shapefile' ? '.shp' : '.tiff'
+        "#{basename}#{ext}"
+      end
+
+      def field_value(dir, field_name)
+        json_filepath = File.join(dir, 'geoblacklight.json')
+        json_data = File.read(json_filepath)
+        data_hash = JSON.parse(json_data)
+        data_hash[field_name]
+      end
 
       def unzip_map_files(dest_dir, map_zipfile)
         FileUtils.mkdir_p(dest_dir) unless File.directory? dest_dir

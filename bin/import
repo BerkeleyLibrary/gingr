@@ -69,9 +69,9 @@ module Gingr
     option :geoserver_secure_url
     def all(zipfile)
       unpacked_dirs = unpack(zipfile)
-      solr(unpacked_dirs[:solr_indexer_dir])
+      solr(unpacked_dirs[:jsonfile_dir_list])
 
-      geofile_dirs = unpacked_dirs[:geoserver_publisher_dir]
+      geofile_dirs = unpacked_dirs[:geofile_name_hash]
       root = options[:geoserver_root] || ENV['GEOSERVER_ROOT']
       geoserver_url = options[:geoserver_url] || ENV['GEOSERVER_URL']
       geoserver_secure_url = options[:geoserver_secure_ulr] || ENV['GEOSERVER_SECURE_URL']
