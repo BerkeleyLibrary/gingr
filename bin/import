@@ -13,19 +13,17 @@ module Gingr
   # ingestion tasks
   class Import < Thor
     desc 'solr index within directory', 'Index json files from a directory to solr'
+    option :download_url
+    option :geoserver_url
+    option :geoserver_secure_url
     option :solr_url
-    option :change_reference_domain, type: :boolean, default: false
+    option :update_reference_field, type: :boolean, default: false
     def solr(dir_path)
-      solr_url = options[:solr_url] || ENV['SOLR_URL']
-      indexer = SolrIndexer.new(solr_url)
-      Find.find(dir_path) do |path|
-        next unless File.extname(path).downcase == '.json'
+      update_reference_urls(options)
 
-        indexer.update(path, options[:change_reference_domain])
-      rescue RSolr::Error::Http => e
-        puts "Response body: #{e.response}"
-      end
-      indexer.solr.commit
+      url = options[:solr_url] || ENV['SOLR_URL']
+      update_reference_field = options[:update_reference_field]
+      index_solr_from_dir(dir_path, url, update_reference_field)
     end
 
     desc 'publish a geofile', 'tt'
@@ -90,6 +88,29 @@ module Gingr
 
       secure_publisher = GeoserverPublisher.new(secure_url, root, 'UCB')
       secure_publisher.batch_update(geofile_dirs[:ucb])
+    end
+
+    # For changing reference domains, default are from ENV
+    def update_reference_urls(options)
+      download_url = options[:download_url]
+      geoserver_url = options[:geoserver_url]
+      geoserver_secure_url = options[:geoserver_secure_ulr]
+
+      SolrIndexerIndex.download_url = download_url if download_url
+      SolrIndexerIndex.geoserver_url = geoserver_url if geoserver_url
+      SolrIndexerIndex.geoserver_secure_ul = geoserver_secure_url if geoserver_secure_url
+    end
+
+    def index_solr_from_dir(directory_path, url, update_reference_field)
+      indexer = SolrIndexer.new(url)
+      Find.find(directory_path) do |path|
+        next unless File.extname(path).downcase == '.json'
+
+        indexer.update(path, update_reference_field)
+      rescue RSolr::Error::Http => e
+        puts "Response body: #{e.response}"
+      end
+      indexer.solr.commit
     end
   end
 end

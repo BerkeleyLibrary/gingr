@@ -4,19 +4,19 @@
 module Gingr
   # config info
   module Config
-    # key: environment varable name
+    # key: class attribute names defined in solr_index.rb
     # value: domain from pre-ingestion tool
-    @env_domains = {
-      GEOSERVER_SECURE_URL: 'geoservices-secure.lib.berkeley.edu',
-      GEOSERVER_URL: 'geoservices.lib.berkeley.edu/geoserver/',
-      DOWNLOAD_URL: 'spatial.lib.berkeley.edu'
+    @name_domain_hash = {
+      geoserver_secure_url: 'geoservices-secure.lib.berkeley.edu',
+      geoserver_url: 'geoservices.lib.berkeley.edu/geoserver/',
+      download_url: 'spatial.lib.berkeley.edu'
     }
 
     # dirname where all ingestion files located inside the ingestion zip file
     @geofile_ingestion_dirname = 'ingestion_files'
 
     class << self
-      attr_accessor :domains, :geofile_ingestion_dirname
+      attr_accessor :name_domain_hash, :geofile_ingestion_dirname
 
       include Config
     end
