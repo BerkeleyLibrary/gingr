@@ -9,13 +9,6 @@ module Gingr
   include Gingr::Config
   # publish service to geoserver
   class GeoserverPublisher
-    # @geoserver_root = ''
-    # @access = ''
-
-    # class << self
-    #   attr_accessor :geoserver_root, :access
-    # end
-
     def initialize(url, root, access)
       uri = URI(url)
       @conn = Geoserver::Publish::Connection.new({ 'url' => "#{uri.host}#{uri.path}", 'user' => uri.user,

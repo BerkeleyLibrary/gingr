@@ -74,33 +74,36 @@ module Gingr
         public_names = []
         ucb_names = []
         subdirectory_list(directory_path).each do |sub_dir|
-          access = access_type(sub_dir)
-          name = geofile_basename(sub_dir)
-          access == 'public' ? public_names << name : ucb_names << name
+          hash = name_access_hash(sub_dir)
+          hash[:access] == 'public' ? public_names << hash[:name] : ucb_names << hash[:name]
         end
-        { public: public_dirs, ucb: ucb_dirs }
+        { public: public_names, ucb: ucb_names }
       end
 
       def access_type(dir)
-        value = field_value(dir, 'dct_accessRights_s').downcase
+        data_hash = geoblacklight_hash(dir)
+        value = data_hash['dct_accessRights_s'].downcase
         # value = 'Public' # fake data
         value == 'public' ? 'public' : 'ucb'
       end
 
       private
 
-      def geofile_basename(dir)
-        basename = File.basename(dir)
-        value = field_value(dir, 'dct_format_s').downcase
-        ext = value == 'shapefile' ? '.shp' : '.tiff'
-        "#{basename}#{ext}"
-      end
-
-      def field_value(dir, field_name)
+      def geoblacklight_hash(dir)
         json_filepath = File.join(dir, 'geoblacklight.json')
         json_data = File.read(json_filepath)
-        data_hash = JSON.parse(json_data)
-        data_hash[field_name]
+        JSON.parse(json_data)
+      end
+
+      def name_access_hash(dir)
+        data_hash = geoblacklight_hash(dir)
+        format = data_hash['dct_format_s'].downcase
+        ext = format == 'shapefile' ? '.shp' : '.tiff'
+
+        right = data_hash['dct_accessRights_s'].downcase
+        access = right == 'public' ? 'public' : 'ucb'
+
+        { name: "#{basename}#{ext}", access: }
       end
 
       def unzip_map_files(dest_dir, map_zipfile)
