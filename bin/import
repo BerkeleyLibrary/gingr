@@ -36,17 +36,11 @@ module Gingr
     option :geoserver_url
     option :geoserver_root
     def geoserver(filename, access)
-      puts filename
-      puts access
-      geoserver_root = options[:geoserver_root] || ENV['GEOSERVER_ROOT']
+      root = options[:geoserver_root] || ENV['GEOSERVER_ROOT']
+      env_url = access == 'public' ? ENV['GEOSERVER_URL'] : ENV['GEOSERVER_SECURE_URL']
+      url = options[:geoserver_url] || env_url
 
-      url = access == 'public' ? ENV['GEOSERVER_URL'] : ENV['GEOSERVER_SECURE_URL']
-      geoserver_url = options[:geoserver_url] || url
-
-      GeoserverPublisher.geoserver_root = geoserver_root
-      GeoserverPublisher.access = access
-
-      publisher = GeoserverPublisher.new(geoserver_url)
+      publisher = GeoserverPublisher.new(url, root, access)
       publisher.update(filename)
     end
 
@@ -69,25 +63,33 @@ module Gingr
     # LONGDESC
     option :solr_url
     option :change_reference_domain, type: :boolean, default: false
-    option :geoserver_url
     option :spatial_root
     option :geoserver_root
+    option :geoserver_url
+    option :geoserver_secure_url
     def all(zipfile)
-      dirs = unpack(zipfile)
-      puts dirs[:solr_indexer_dir]
-      puts dirs[:geoserver_publisher_dir]
-      # solr(dirs[:solr_indexer_dir])
+      unpacked_dirs = unpack(zipfile)
+      solr(unpacked_dirs[:solr_indexer_dir])
 
-      DataHandler.subdirectory_list(dirs[:geoserver_publisher_dir]).each do |dir|
-        access = DataHandler.access_type(dir)
-        basename = File.basename(dir)
-        puts basename
-        # geoserver(basename, access)
-      end
+      geofile_dirs = unpacked_dirs[:geoserver_publisher_dir]
+      root = options[:geoserver_root] || ENV['GEOSERVER_ROOT']
+      geoserver_url = options[:geoserver_url] || ENV['GEOSERVER_URL']
+      geoserver_secure_url = options[:geoserver_secure_ulr] || ENV['GEOSERVER_SECURE_URL']
+      publish_geoservers(geoserver_url, geoserver_secure_url, root, geofile_dirs)
     end
 
     def self.exit_on_failure?
       true
+    end
+
+    private
+
+    def publish_geoservers(url, secure_url, root, geofile_dirs)
+      publisher = GeoserverPublisher.new(url, root, 'public')
+      publisher.batch_update(geofile_dirs[:public])
+
+      secure_publisher = GeoserverPublisher.new(secure_url, root, 'UCB')
+      secure_publisher.batch_update(geofile_dirs[:ucb])
     end
   end
 end

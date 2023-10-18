@@ -13,10 +13,10 @@ module Gingr
     }
 
     # dirname where all ingestion files located inside the ingestion zip file
-    @ingestion_dirname = 'ingestion_files'
+    @geofile_ingestion_dirname = 'ingestion_files'
 
     class << self
-      attr_accessor :domains, :ingestion_dirname
+      attr_accessor :domains, :geofile_ingestion_dirname
 
       include Config
     end

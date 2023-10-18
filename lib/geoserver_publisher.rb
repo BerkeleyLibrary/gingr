@@ -9,17 +9,19 @@ module Gingr
   include Gingr::Config
   # publish service to geoserver
   class GeoserverPublisher
-    @geoserver_root = ''
-    @access = ''
+    # @geoserver_root = ''
+    # @access = ''
 
-    class << self
-      attr_accessor :geoserver_root, :access
-    end
+    # class << self
+    #   attr_accessor :geoserver_root, :access
+    # end
 
-    def initialize(url)
+    def initialize(url, root, access)
       uri = URI(url)
       @conn = Geoserver::Publish::Connection.new({ 'url' => "#{uri.host}#{uri.path}", 'user' => uri.user,
                                                    'password' => uri.password.to_s })
+      @access = access
+      @root = root
     end
 
     def update(filename)
@@ -36,9 +38,13 @@ module Gingr
       end
     end
 
+    def batch_update(filename_list)
+      filename_list.each { |filename| update(filename) }
+    end
+
     def file_path(name, filename)
       # "file:///srv/geofiles/#{@access}/berkeley-#{name}/#{filename}"
-      "#{@geoserver_root}/#{@access}/berkeley-#{name}/#{filename}"
+      "#{@root}/#{@access}/berkeley-#{name}/#{filename}"
     end
   end
 end

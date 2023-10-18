@@ -20,10 +20,11 @@ module Gingr
         extract_path = make_dir(to_dir_path, File.basename(zip_file, '.*'))
         extract_zipfile(zip_file, extract_path)
 
-        move_from_path = move_files(extract_path)
-        { solr_indexer_dir: extract_path, geoserver_publisher_dir: move_from_path }
+        geofile_ingestion_dir_path = move_files(extract_path)
+        { solr_indexer_dir: extract_path, geoserver_publisher_dir: get_geofile_dirs(geofile_ingestion_dir_path) }
       end
 
+      # workflow to be discuss: need to remove the extract_path before extract zipfile?
       def extract_zipfile(zip_file, extraction_path)
         Dir.mkdir(extraction_path) unless File.directory? extraction_path
         Zip::File.open(zip_file) do |zip|
@@ -35,11 +36,11 @@ module Gingr
       end
 
       def move_files(from_dir_path)
-        move_from_path = File.join(from_dir_path, Config.ingestion_dirname)
-        subdirectory_list(move_from_path).each do |subdirectory|
+        geofile_ingestion_dir_path = File.join(from_dir_path, Config.geofile_ingestion_dirname)
+        subdirectory_list(geofile_ingestion_dir_path).each do |subdirectory|
           move_ingestion_files(subdirectory)
         end
-        move_from_path
+        geofile_ingestion_dir_path
       end
 
       # move ingestion files from a structured ingestion zip file
@@ -69,12 +70,22 @@ module Gingr
         Pathname(directory_path).children.select(&:file?)
       end
 
+      def get_geofile_dirs(directory_path)
+        public_dirs = []
+        ucb_dirs = []
+        subdirectory_list(directory_path).each do |dir|
+          access = access_type(dir)
+          access == 'public' ? public_dirs << dir : ucb_dirs << dir
+        end
+        { public: public_dirs, ucb: ucb_dirs }
+      end
+
       def access_type(dir)
         json_filepath = File.join(dir, 'geoblacklight.json')
         json_data = File.read(json_filepath)
         data_hash = JSON.parse(json_data)
         data_hash['dct_accessRights_s'] = 'Public' # fake data
-        data_hash['dct_accessRights_s'].downcase == 'public' ? 'public' : 'UCB'
+        data_hash['dct_accessRights_s'].downcase == 'public' ? 'public' : 'ucb'
       end
 
       private
@@ -91,7 +102,7 @@ module Gingr
       end
 
       def file_path(dir, root)
-        #  /srv/geofiles/{UCB,public}/berkeley-{arkID}/data.zip
+        #  /srv/geofiles/spatial/{UCB,public}/berkeley-{arkID}/data.zip
         arkid = dir.to_s.split('/')[-1].strip
         type = access_type(dir)
         File.join(root, type, "berkeley-#{arkid}")

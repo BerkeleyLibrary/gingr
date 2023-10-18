@@ -1,5 +1,6 @@
 /log/*
 /zold_app/*
+/geofiles/*
+/temp/*
 .irb_history
 .bash_history
-/geofiles/*
