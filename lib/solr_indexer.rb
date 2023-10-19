@@ -11,7 +11,7 @@ module Gingr
   class SolrIndexer
     attr_reader :solr
 
-    # for updating reference field url domains
+    # for updating reference field url domains from json file
     @download_url = ENV.fetch('DOWNLOAD_URL')
     @geoserver_url = ENV.fetch('GEOSERVER_URL')
     @geoserver_secure_url = ENV.fetch('GEOSERVER_SECURE_URL')

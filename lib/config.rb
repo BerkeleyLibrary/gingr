@@ -12,7 +12,7 @@ module Gingr
       download_url: 'spatial.lib.berkeley.edu'
     }
 
-    # dirname where all ingestion files located inside the ingestion zip file
+    # dirname where all geofile related ingestion files located inside the ingestion zip file
     @geofile_ingestion_dirname = 'ingestion_files'
 
     class << self
