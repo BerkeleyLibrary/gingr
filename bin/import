@@ -16,14 +16,12 @@ module Gingr
     option :download_url
     option :geoserver_url
     option :geoserver_secure_url
-    option :solr_url
     option :update_reference_field, type: :boolean, default: false
+    option :solr_url
     def solr(dir_path)
-      update_reference_urls(options)
-
-      url = options[:solr_url] || ENV['SOLR_URL']
-      update_reference_field = options[:update_reference_field]
-      index_solr_from_dir(dir_path, url, update_reference_field)
+      reference_domain_names = get_domain_names(options)
+      url = options[:solr_url] || ENV.fetch('SOLR_URL', nil)
+      index_solr_from_dir(dir_path, url, reference_domain_names)
     end
 
     desc 'publish a geofile', 'tt'
@@ -34,8 +32,8 @@ module Gingr
     option :geoserver_url
     option :geoserver_root
     def geoserver(filename, access)
-      root = options[:geoserver_root] || ENV['GEOSERVER_ROOT']
-      env_url = access == 'public' ? ENV['GEOSERVER_URL'] : ENV['GEOSERVER_SECURE_URL']
+      root = options[:geoserver_root] || ENV.fetch('GEOSERVER_ROOT', nil)
+      env_url = access == 'public' ? ENV.fetch('GEOSERVER_URL', nil) : ENV.fetch('GEOSERVER_SECURE_URL', nil)
       url = options[:geoserver_url] || env_url
 
       publisher = GeoserverPublisher.new(url, root, access)
@@ -46,8 +44,8 @@ module Gingr
     option :spatial_root
     option :geoserver_root
     def unpack(zipfile)
-      DataHandler.spatial_root = options[:spatial_root] || ENV['SPATIAL_ROOT']
-      DataHandler.geoserver_root = options[:geoserver_root] || ENV['GEOSERVER_ROOT']
+      DataHandler.spatial_root = options[:spatial_root] || ENV.fetch('SPATIAL_ROOT', nil)
+      DataHandler.geoserver_root = options[:geoserver_root] || ENV.fetch('GEOSERVER_ROOT', nil)
 
       temp_path = File.join(Dir.pwd, 'temp')
       DataHandler.extract_move(zipfile, temp_path)
@@ -60,7 +58,7 @@ module Gingr
     #       3) publish all geofiles to geoserver
     # LONGDESC
     option :solr_url
-    option :change_reference_domain, type: :boolean, default: false
+    option :update_reference_field, type: :boolean, default: false
     option :spatial_root
     option :geoserver_root
     option :geoserver_url
@@ -69,11 +67,11 @@ module Gingr
       unpacked_dirs = unpack(zipfile)
       solr(unpacked_dirs[:jsonfile_dir_list])
 
-      geofile_dirs = unpacked_dirs[:geofile_name_hash]
-      root = options[:geoserver_root] || ENV['GEOSERVER_ROOT']
-      geoserver_url = options[:geoserver_url] || ENV['GEOSERVER_URL']
-      geoserver_secure_url = options[:geoserver_secure_ulr] || ENV['GEOSERVER_SECURE_URL']
-      publish_geoservers(geoserver_url, geoserver_secure_url, root, geofile_dirs)
+      geofile_names = unpacked_dirs[:geofile_name_hash]
+      root = options[:geoserver_root] || ENV.fetch('GEOSERVER_ROOT', nil)
+      geoserver_url = options[:geoserver_url] || ENV.fetch('GEOSERVER_URL', nil)
+      geoserver_secure_url = options[:geoserver_secure_ulr] || ENV.fetch('GEOSERVER_SECURE_URL', nil)
+      publish_geoservers(geoserver_url, geoserver_secure_url, root, geofile_names)
     end
 
     def self.exit_on_failure?
@@ -82,23 +80,12 @@ module Gingr
 
     private
 
-    def publish_geoservers(url, secure_url, root, geofile_dirs)
+    def publish_geoservers(url, secure_url, root, geofile_names)
       publisher = GeoserverPublisher.new(url, root, 'public')
-      publisher.batch_update(geofile_dirs[:public])
+      publisher.batch_update(geofile_names[:public])
 
       secure_publisher = GeoserverPublisher.new(secure_url, root, 'UCB')
-      secure_publisher.batch_update(geofile_dirs[:ucb])
-    end
-
-    # For changing reference domains, default are from ENV
-    def update_reference_urls(options)
-      download_url = options[:download_url]
-      geoserver_url = options[:geoserver_url]
-      geoserver_secure_url = options[:geoserver_secure_ulr]
-
-      SolrIndexerIndex.download_url = download_url if download_url
-      SolrIndexerIndex.geoserver_url = geoserver_url if geoserver_url
-      SolrIndexerIndex.geoserver_secure_ul = geoserver_secure_url if geoserver_secure_url
+      secure_publisher.batch_update(geofile_names[:ucb])
     end
 
     def index_solr_from_dir(directory_path, url, update_reference_field)
@@ -111,6 +98,30 @@ module Gingr
         puts "Response body: #{e.response}"
       end
       indexer.solr.commit
+    end
+
+    def get_domain_names(options)
+      update_reference_field = options[:update_reference_field]
+      return {} unless update_reference_field
+
+      domain_names(options)
+    end
+
+    def domain_names(options)
+      hash = {}
+      download_url = options[:download_url] || ENV.fetch('DOWNLOAD_URL')
+      geoserver_url = options[:geoserver_url] || ENV.fetch('GEOSERVER_URL')
+      geoserver_secure_url = options[:geoserver_secure_ulr] || ENV.fetch('GEOSERVER_SECURE_URL')
+
+      hash[:download] = domain_name(download_url) if download_url
+      hash[:geoserver] = domain_name(geoserver_url) if geoserver_url
+      hash[:geoserver_secure] = domain_name(geoserver_secure_url) if geoserver_secure_url
+      hash
+    end
+
+    def domain_name(url)
+      uri = URI(url)
+      uri.host
     end
   end
 end
