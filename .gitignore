@@ -1,7 +1,7 @@
 /log/*
 /zold_app/*
 /geofiles/*
-/temp/*
+/upload/*
 .irb_history
 .bash_history
 /solr/geodata-test/data/index/*
