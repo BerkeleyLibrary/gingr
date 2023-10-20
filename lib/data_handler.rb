@@ -16,20 +16,20 @@ module Gingr
     class << self
       attr_accessor :spatial_root, :geoserver_root
 
-      def extract_move(zip_file, to_dir_path)
-        extract_path = make_dir(to_dir_path, File.basename(zip_file, '.*'))
-        extract_zipfile(zip_file, extract_path)
+      def extract_and_move(zip_file, to_dir_path)
+        extract_to_path = make_dir(to_dir_path, File.basename(zip_file, '.*'))
+        extract_zipfile(zip_file, extract_to_path)
 
-        geofile_ingestion_dir_path = move_files(extract_path)
-        { extract_path:, geofile_name_hash: get_geofile_name_hash(geofile_ingestion_dir_path) }
+        geofile_ingestion_dir_path = move_files(extract_to_path)
+        { extract_to_path:, geofile_name_hash: get_geofile_name_hash(geofile_ingestion_dir_path) }
       end
 
-      # workflow to be discuss: need to remove the extract_path before extract zipfile?
-      def extract_zipfile(zip_file, extraction_path)
-        Dir.mkdir(extraction_path) unless File.directory? extraction_path
+      # workflow to be discuss: need to remove the extract_to_path before extract zipfile?
+      def extract_zipfile(zip_file, extract_to_path)
+        Dir.mkdir(extract_to_path) unless File.directory? extract_to_path
         Zip::File.open(zip_file) do |zip|
           zip.each do |entry|
-            entry_path = File.join(extraction_path, entry.name)
+            entry_path = File.join(extract_to_path, entry.name)
             entry.extract(entry_path) { true }
           end
         end
@@ -37,21 +37,21 @@ module Gingr
 
       def move_files(from_dir_path)
         geofile_ingestion_dir_path = File.join(from_dir_path, Config.geofile_ingestion_dirname)
-        subdirectory_list(geofile_ingestion_dir_path).each do |subdirectory|
-          move_ingestion_files(subdirectory)
+        subdirectory_list(geofile_ingestion_dir_path).each do |subdirectory_path|
+          move_ingestion_files(subdirectory_path)
         end
         geofile_ingestion_dir_path
       end
 
       # move ingestion files from a structured ingestion zip file
-      def move_ingestion_files(dir)
-        subfile_list(dir).each do |file|
+      def move_ingestion_files(dir_path)
+        subfile_list(dir_path).each do |file|
           if File.basename(file) == 'map.zip'
-            dest_dir = file_path(dir, @geoserver_root)
-            unzip_map_files(dest_dir, file)
+            dest_dir_path = file_path(dir_path, @geoserver_root)
+            unzip_map_files(dest_dir_path, file)
           else
-            dest_dir = file_path(dir, @spatial_root)
-            mv_spatial_file(dest_dir, file)
+            dest_dir_path = file_path(dir_path, @spatial_root)
+            mv_spatial_file(dest_dir_path, file)
           end
         end
       end
@@ -83,8 +83,7 @@ module Gingr
       def access_type(dir)
         data_hash = geoblacklight_hash(dir)
         value = data_hash['dct_accessRights_s'].downcase
-        # value = 'Public' # fake data
-        value == 'public' ? 'public' : 'ucb'
+        value == 'public' ? 'public' : 'UCB'
       end
 
       private
@@ -96,6 +95,7 @@ module Gingr
       end
 
       def name_access_hash(dir)
+        basename = File.basename(dir).split('_').last
         data_hash = geoblacklight_hash(dir)
         format = data_hash['dct_format_s'].downcase
         ext = format == 'shapefile' ? '.shp' : '.tiff'
@@ -117,10 +117,10 @@ module Gingr
         FileUtils.cp(file, to_file)
       end
 
-      def file_path(dir, root)
-        #  /srv/geofiles/spatial/{UCB,public}/berkeley-{arkID}/data.zip
-        arkid = dir.to_s.split('/')[-1].strip
-        type = access_type(dir)
+      def file_path(dir_path, root)
+        #  geofiles/spatial/{UCB,public}/berkeley-{arkID}
+        arkid = File.basename(dir_path).strip
+        type = access_type(dir_path)
         File.join(root, type, "berkeley-#{arkid}")
       end
     end

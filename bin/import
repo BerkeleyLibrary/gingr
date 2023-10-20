@@ -37,7 +37,7 @@ module Gingr
       url = options[:geoserver_url] || env_url
 
       publisher = GeoserverPublisher.new(url)
-      # publisher.update(filename)
+      publisher.update(filename)
     end
 
     desc 'unpack zip file to a directory', 'unpack a zip file to a directory'
@@ -48,7 +48,7 @@ module Gingr
       DataHandler.geoserver_root = options[:geoserver_root] || ENV.fetch('GEOSERVER_ROOT', nil)
 
       temp_path = File.join(Dir.pwd, 'temp')
-      DataHandler.extract_move(zipfile, temp_path)
+      DataHandler.extract_and_move(zipfile, temp_path)
     end
 
     desc 'move, index and publish all files to related servers', 'tt'
@@ -65,7 +65,7 @@ module Gingr
     option :geoserver_secure_url
     def all(zipfile)
       unpacked = unpack(zipfile)
-      solr(unpacked[:extract_path])
+      solr(unpacked[:extract_to_path])
 
       geofile_names = unpacked[:geofile_name_hash]
       publish_geoservers(geofile_names, options)

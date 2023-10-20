@@ -30,7 +30,7 @@ module Gingr
       # @geoserver_secure_url = ENV.fetch('GEOSERVER_SECURE_URL')
     end
 
-    def update(file_path, _update_reference_field)
+    def update(file_path)
       commit_within = ENV.fetch('SOLR_COMMIT_WITHIN', 5000).to_i
       doc = JSON.parse(File.read(file_path))
       [doc].flatten.each do |record|

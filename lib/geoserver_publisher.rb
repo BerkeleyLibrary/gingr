@@ -12,18 +12,8 @@ module Gingr
   class GeoserverPublisher
     def initialize(url)
       uri = URI(url)
-      puts rest_url(uri)
       @conn = Geoserver::Publish::Connection.new({ 'url' => rest_url(uri), 'user' => uri.user,
                                                    'password' => uri.password.to_s })
-
-      # host = 'http://host.docker.internal'
-
-      # @conn = Geoserver::Publish::Connection.new({ 'url' => "#{host}:8080/geoserver/rest", 'user' => 'admin',
-      #                                              'password' => 'geoserver' })
-      # @conn = Geoserver::Publish::Connection.new({ 'url' => "#{uri.host}#{uri.path}", 'user' => uri.user,
-      #   'password' => uri.password.to_s })
-      # @access = access
-      # @root = root
     end
 
     def update(filename)
