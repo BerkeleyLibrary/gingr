@@ -21,7 +21,7 @@ module Gingr
         extract_zipfile(zip_file, extract_path)
 
         geofile_ingestion_dir_path = move_files(extract_path)
-        { jsonfile_dir_list: extract_path, geofile_name_hash: get_geofile_name_hash(geofile_ingestion_dir_path) }
+        { extract_path:, geofile_name_hash: get_geofile_name_hash(geofile_ingestion_dir_path) }
       end
 
       # workflow to be discuss: need to remove the extract_path before extract zipfile?
