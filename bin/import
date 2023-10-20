@@ -1,0 +1,127 @@
+# frozen_string_literal: true
+
+require 'thor'
+require_relative '../lib/data_handler'
+require_relative '../lib/solr_indexer'
+require_relative '../lib/geoserver_publisher'
+require 'find'
+require 'json'
+
+# Gingr module
+module Gingr
+  include Gingr::Config
+  # ingestion tasks
+  class Import < Thor
+    desc 'solr index within directory', 'Index json files from a directory to solr'
+    option :download_url
+    option :geoserver_url
+    option :geoserver_secure_url
+    option :update_reference_field, type: :boolean, default: false
+    option :solr_url
+    def solr(dir_path)
+      reference_domain_names = get_domain_names(options)
+      url = options[:solr_url] || ENV.fetch('SOLR_URL', nil)
+      index_solr_from_dir(dir_path, url, reference_domain_names)
+    end
+
+    desc 'publish a geofile', 'tt'
+    # long_desc <<-LONGDESC
+    #      publish a geofile with inputs of file basename and access type to geoserver,#{' '}
+    #      the geofile should have been already moved to geoserver before runng this task'
+    # LONGDESC
+    option :geoserver_url
+    option :geoserver_root
+    option :public_access, type: :boolean, default: true
+    def geoserver(_filename)
+      env_url = options[:public_access] ? ENV.fetch('GEOSERVER_URL', nil) : ENV.fetch('GEOSERVER_SECURE_URL', nil)
+      url = options[:geoserver_url] || env_url
+
+      publisher = GeoserverPublisher.new(url)
+      publisher.update(filename)
+    end
+
+    desc 'unpack zip file to a directory', 'unpack a zip file to a directory'
+    option :spatial_root
+    option :geoserver_root
+    def unpack(zipfile)
+      DataHandler.spatial_root = options[:spatial_root] || ENV.fetch('SPATIAL_ROOT', nil)
+      DataHandler.geoserver_root = options[:geoserver_root] || ENV.fetch('GEOSERVER_ROOT', nil)
+
+      temp_path = File.join(Dir.pwd, 'temp')
+      DataHandler.extract_and_move(zipfile, temp_path)
+    end
+
+    desc 'move, index and publish all files to related servers', 'tt'
+    # long_desc <<-LONGDESC
+    #       1) move all souce files and metadata files to apache server,#{' '}
+    #       2) index all geoblacklight json files to solr,#{' '}
+    #       3) publish all geofiles to geoserver
+    # LONGDESC
+    option :solr_url
+    option :update_reference_field, type: :boolean, default: false
+    option :spatial_root
+    option :geoserver_root
+    option :geoserver_url
+    option :geoserver_secure_url
+    def all(zipfile)
+      unpacked = unpack(zipfile)
+      solr(unpacked[:extract_to_path])
+
+      geofile_names = unpacked[:geofile_name_hash]
+      publish_geoservers(geofile_names, options)
+    end
+
+    def self.exit_on_failure?
+      true
+    end
+
+    private
+
+    def publish_geoservers(geofile_names, options)
+      url = options[:geoserver_url] || ENV.fetch('GEOSERVER_URL', nil)
+      publisher = GeoserverPublisher.new(url)
+      publisher.batch_update(geofile_names[:public])
+
+      url = options[:geoserver_secure_url] || ENV.fetch('GEOSERVER_SECURE_URL', nil)
+      publisher = GeoserverPublisher.new(url)
+      publisher.batch_update(geofile_names[:ucb])
+    end
+
+    def index_solr_from_dir(directory_path, url, update_reference_field)
+      indexer = SolrIndexer.new(url)
+      Find.find(directory_path) do |path|
+        next unless File.extname(path).downcase == '.json'
+
+        indexer.update(path, update_reference_field)
+      rescue RSolr::Error::Http => e
+        puts "Response body: #{e.response}"
+      end
+      indexer.solr.commit
+    end
+
+    def get_domain_names(options)
+      update_reference_field = options[:update_reference_field]
+      return {} unless update_reference_field
+
+      domain_names(options)
+    end
+
+    def domain_names(options)
+      hash = {}
+      download_url = options[:download_url] || ENV.fetch('DOWNLOAD_URL')
+      geoserver_url = options[:geoserver_url] || ENV.fetch('GEOSERVER_URL')
+      geoserver_secure_url = options[:geoserver_secure_ulr] || ENV.fetch('GEOSERVER_SECURE_URL')
+
+      hash[:download] = domain_name(download_url) if download_url
+      hash[:geoserver] = domain_name(geoserver_url) if geoserver_url
+      hash[:geoserver_secure] = domain_name(geoserver_secure_url) if geoserver_secure_url
+      hash
+    end
+
+    def domain_name(url)
+      uri = URI(url)
+      uri.host
+    end
+  end
+end
+Gingr::Import.start(ARGV)

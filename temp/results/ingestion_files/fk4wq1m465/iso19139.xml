@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MD_Metadata xmlns="http://www.isotc211.org/2005/gmd" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gts="http://www.isotc211.org/2005/gts" xmlns:srv="http://www.isotc211.org/2005/srv" xmlns:gml="http://www.opengis.net/gml" xmlns:gmx="http://www.isotc211.org/2005/gmx" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<characterSet>
+<MD_CharacterSetCode codeList="http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml#MD_CharacterSetCode" codeListValue="utf8" codeSpace="ISOTC211/19115">utf8</MD_CharacterSetCode>
+</characterSet>
+<hierarchyLevel>
+<MD_ScopeCode codeList="http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml#MD_ScopeCode" codeListValue="dataset" codeSpace="ISOTC211/19115">dataset</MD_ScopeCode>
+</hierarchyLevel>
+<hierarchyLevelName>
+<gco:CharacterString>dataset</gco:CharacterString>
+</hierarchyLevelName>
+<contact gco:nilReason="missing">
+</contact>
+<dateStamp gco:nilReason="missing">
+</dateStamp>
+<metadataStandardName>
+<gco:CharacterString>ISO 19139 Geographic Information - Metadata - Implementation Specification</gco:CharacterString>
+</metadataStandardName>
+<metadataStandardVersion>
+<gco:CharacterString>2007</gco:CharacterString>
+</metadataStandardVersion>
+<identificationInfo gco:nilReason="missing">
+</identificationInfo>
+<distributionInfo>
+<MD_Distribution>
+<distributor>
+<MD_Distributor>
+<distributorContact>
+<CI_ResponsibleParty>
+<organisationName>
+<gco:CharacterString>UC Berkeley Library</gco:CharacterString>
+</organisationName>
+<contactInfo>
+<CI_Contact>
+<phone>
+<CI_Telephone>
+<voice>
+<gco:CharacterString>(510) 642-2997****</gco:CharacterString>
+</voice>
+</CI_Telephone>
+</phone>
+<address>
+<CI_Address>
+<deliveryPoint>
+<gco:CharacterString>50 McCone Hall</gco:CharacterString>
+</deliveryPoint>
+<city>
+<gco:CharacterString>Berkeley</gco:CharacterString>
+</city>
+<administrativeArea>
+<gco:CharacterString>CA</gco:CharacterString>
+</administrativeArea>
+<postalCode>
+<gco:CharacterString>94720</gco:CharacterString>
+</postalCode>
+<country>
+<Country codeList="http://www.iso.org/iso/country_codes/iso_3166_code_lists.htm" codeListValue="US" codeSpace="ISO3166-1">US</Country>
+</country>
+<electronicMailAddress>
+<gco:CharacterString>eart@library.berkeley.edu</gco:CharacterString>
+</electronicMailAddress>
+</CI_Address>
+</address>
+</CI_Contact>
+</contactInfo>
+<role>
+<CI_RoleCode codeList="http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml#CI_RoleCode" codeListValue="distributor" codeSpace="ISOTC211/19115">distributor</CI_RoleCode>
+</role>
+</CI_ResponsibleParty>
+</distributorContact>
+</MD_Distributor>
+</distributor>
+</MD_Distribution>
+</distributionInfo>
+</MD_Metadata>

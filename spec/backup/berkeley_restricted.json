@@ -1,0 +1,45 @@
+{
+  "dct_title_s": "City Boundaries, China, 2012", 
+  "dct_alternative_sm": [
+    "City Boundaries, China"
+  ],
+  "dct_description_sm": [
+    "This polygon dataset represents city boundaries in China from 2012. The attribute table includes the GB codes and names in Chinese and English (Pinyin). All data is copyrighted by China Data Center and/or its suppliers. Derived works that include the source data must be merged with other value-added data in such a way that the derived work cannot be converted back to the original source data format. This data is licensed by UC Berkeley for research, educational, and other non-commercial use by authorized users, which include persons affiliated with UC Berkeley and walk-in users who must access the data in person at the library.The data sources for the layers in the collection \"Administrative Boundary Maps of China, 1949-2014\" include the following primary sources: \u201cThe Historical Changes of Administrative Regions of China, 1949-1983\u201d (three volumes); \u300a\u4e2d\u534e\u4eba\u6c11\u5171\u548c\u56fd\u53bf\u7ea7\u4ee5\u4e0a\u884c\u653f\u533a\u6cbf\u9769\u300b\uff08\u4e09\u518c\uff0c1949-1983\u5e74\uff09\u201cThe Atlas of Changes of Administrative Regions of China\u201d;\u300a\u4e2d\u534e\u4eba\u6c11\u5171\u548c\u56fd\u884c\u653f\u533a\u5212\u6cbf\u9769\u5730\u56fe\u96c6\u300bThe yearly publications of \u201cThe Administrative Regions\u201d, 1985-2014; \u6bcf\u5e74\u7684\u51fa\u7248\u884c\u653f\u533a\u5212\u7b80\u518c\uff081985-2014\u5e74\uff09The web site for administrative regions: www.xzqh.org; \u884c\u653f\u533a\u5212\u7f51www.xzqh.org"
+   ],
+  "dct_language_sm": [
+    "eng"
+  ],
+  "dct_publisher_sm": [
+    "All China Marketing Research Co., Ltd."
+  ],
+  "schema_provider_s": "Berkeley", 
+  "gbl_resourceClass_sm": [
+    "Datasets"
+  ],
+  "gbl_resourceType_sm": [
+    "Polygon Data"
+  ],
+  "dct_subject_sm": [
+    "Boundaries", 
+    "Administrative and Political Divisions"
+  ], 
+  "dct_issued_s": "2010-04-01",
+  "gbl_indexYear_im": [
+    2012
+  ],
+  "dct_spatial_sm": [
+    "China"
+], 
+  "locn_geometry": "ENVELOPE(68.196555, 136.429552, 54.139796, 13.097289)", 
+  "dct_accessRights_s": "Restricted",
+  "dct_format_s": "Shapefile",
+  "gbl_wxsIdentifier_s":  "s7b12n", 
+  "dct_references_s":  "{\"http://www.opengis.net/def/serviceType/ogc/wfs\":\"https://geoservices-secure.lib.berkeley.edu/geoserver/wfs\",\"http://www.opengis.net/def/serviceType/ogc/wms\":\"https://geoservices-secure.lib.berkeley.edu/geoserver/wms\",\"http://www.isotc211.org/schemas/2005/gmd/\":\"https://spatial.lib.berkeley.edu/metadata/berkeley-s7b12n/iso19139.xml\",\"http://schema.org/downloadUrl\":\"https://spatial.lib.berkeley.edu/UCB/berkeley-s7b12n/data.zip\"}", 
+  "id":  "berkeley-s7b12n",         
+  "dct_identifier_sm": [
+    "https://spatial.lib.berkeley.edu/viewpublic/berkeley-s7b12n"
+  ],
+  "gbl_mdModified_dt": "2019-06-26T23:34:35.206Z", 
+  "gbl_mdVersion_s": "Aardvark"
+}
+
