@@ -75,16 +75,15 @@ module Gingr
         ucb_names = []
         subdirectory_list(directory_path).each do |sub_dir|
           hash = name_access_hash(sub_dir)
-          hash[:access] == 'public' ? public_names << hash[:name] : ucb_names << hash[:name]
+          hash[:public_access] ? public_names << hash[:name] : ucb_names << hash[:name]
         end
         { public: public_names, ucb: ucb_names }
       end
 
       def access_type(dir)
-        # data_hash = geoblacklight_hash(dir)
-        # value = data_hash['dct_accessRights_s'].downcase
-        # value == 'public' ? 'public' : 'UCB'
-        'public'
+        data_hash = geoblacklight_hash(dir)
+        value = data_hash['dct_accessRights_s'].downcase
+        value == 'public' ? 'public' : 'UCB'
       end
 
       private
@@ -100,12 +99,8 @@ module Gingr
         data_hash = geoblacklight_hash(dir)
         format = data_hash['dct_format_s'].downcase
         ext = format == 'shapefile' ? '.shp' : '.tiff'
-
-        # right = data_hash['dct_accessRights_s'].downcase
-        # access = right == 'public' ? 'public' : 'ucb'
-        access = 'public'
-
-        { name: "#{basename}#{ext}", access: }
+        right = data_hash['dct_accessRights_s'].downcase
+        { name: "#{basename}#{ext}", public_access: right == 'public' }
       end
 
       def unzip_map_files(dest_dir, map_zipfile)

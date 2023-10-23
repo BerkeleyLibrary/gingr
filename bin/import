@@ -44,11 +44,13 @@ module Gingr
     option :spatial_root
     option :geoserver_root
     def unpack(zipfile)
+      zipfile_path = File.join(root_path, 'import', zipfile)
+      puts(zipfile_path)
       DataHandler.spatial_root = options[:spatial_root] || ENV.fetch('SPATIAL_ROOT', nil)
       DataHandler.geoserver_root = options[:geoserver_root] || ENV.fetch('GEOSERVER_ROOT', nil)
 
-      temp_path = File.join(Dir.pwd, 'upload')
-      DataHandler.extract_and_move(zipfile, temp_path)
+      temp_path = File.join(Dir.pwd, 'tmp')
+      DataHandler.extract_and_move(zipfile_path, temp_path)
     end
 
     desc 'move, index and publish all files to related servers', 'tt'
@@ -64,7 +66,8 @@ module Gingr
     option :geoserver_url
     option :geoserver_secure_url
     def all(zipfile)
-      unpacked = unpack(zipfile)
+      zipfile_path = File.join(root_path, 'import', zipfile)
+      unpacked = unpack(zipfile_path)
       solr(unpacked[:extract_to_path])
 
       geofile_names = unpacked[:geofile_name_hash]
@@ -88,7 +91,6 @@ module Gingr
     end
 
     def index_solr_from_dir(directory_path, url, reference_domain_names)
-      puts url
       indexer = SolrIndexer.new(url, reference_domain_names)
       Find.find(directory_path) do |path|
         next unless File.extname(path).downcase == '.json'
@@ -115,6 +117,10 @@ module Gingr
     def domain_name(url)
       uri = URI(url)
       uri.host
+    end
+
+    def root_path
+      File.expand_path('..', __dir__)
     end
   end
 end

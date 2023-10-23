@@ -1,9 +1,9 @@
 /log/*
 /zold_app/*
 /data/*
-/upload/*
+/tmp/*
+/import/*
 .irb_history
 .bash_history
 /solr/geodata-test/data/index/*
-/solr/geodata-test/data/tlog/*
 
