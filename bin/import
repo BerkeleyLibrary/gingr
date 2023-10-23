@@ -19,9 +19,9 @@ module Gingr
     option :update_reference_field, type: :boolean, default: false
     option :solr_url
     def solr(dir_path)
-      reference_domain_names = get_domain_names(options)
+      reference_urls = get_reference_urls(options)
       url = options[:solr_url] || ENV.fetch('SOLR_URL', nil)
-      index_solr_from_dir(dir_path, url, reference_domain_names)
+      index_solr_from_dir(dir_path, url, reference_urls)
     end
 
     desc 'publish a geofile', 'tt'
@@ -90,8 +90,8 @@ module Gingr
       publisher.batch_update(files)
     end
 
-    def index_solr_from_dir(directory_path, url, reference_domain_names)
-      indexer = SolrIndexer.new(url, reference_domain_names)
+    def index_solr_from_dir(directory_path, url, reference_urls)
+      indexer = SolrIndexer.new(url, reference_urls)
       Find.find(directory_path) do |path|
         next unless File.extname(path).downcase == '.json'
 
@@ -102,21 +102,22 @@ module Gingr
       indexer.solr.commit
     end
 
-    def get_domain_names(options)
+    def get_reference_urls(options)
       update_reference_field = options[:update_reference_field]
       return {} unless update_reference_field
 
       hash = {}
-      Config.domain_names.each_key do |key|
+      Config.reference_urls.each_key do |key|
         url = options[key.to_s] || ENV.fetch("#{key.upcase}_URL")
-        hash[key.to_s] = domain_name(url) if url
+        hash[key.to_s] = reference_url(url) if url
       end
       hash
     end
 
-    def domain_name(url)
+    def reference_url(url)
       uri = URI(url)
-      uri.host
+      port = uri.port == 8080 ? ':8080' : ''
+      "#{uri.scheme}://#{uri.host}#{port}"
     end
 
     def root_path

@@ -5,10 +5,10 @@ module Gingr
   # config info
   module Config
     # value: domain from pre-ingestion tool
-    @domain_names = {
-      geoserver_secure: 'geoservices-secure.lib.berkeley.edu',
-      geoserver: 'geoservices.lib.berkeley.edu/geoserver/',
-      download: 'spatial.lib.berkeley.edu'
+    @reference_urls = {
+      geoserver_secure: 'https://geoservices-secure.lib.berkeley.edu',
+      geoserver: 'https://geoservices.lib.berkeley.edu/geoserver',
+      download: 'https://spatial.lib.berkeley.edu'
     }
 
     # dirname where all geofile related ingestion files located inside the ingestion zip file

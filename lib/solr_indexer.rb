@@ -11,29 +11,29 @@ module Gingr
   class SolrIndexer
     attr_reader :solr
 
-    def initialize(url, domain_names = {})
+    def initialize(url, reference_urls = {})
       @solr = RSolr.connect url:, adapter: :net_http_persistent
-      @domain_names = domain_names
+      @reference_urls = reference_urls
     end
 
     def update(file_path)
       commit_within = ENV.fetch('SOLR_COMMIT_WITHIN', 5000).to_i
       doc = JSON.parse(File.read(file_path))
       [doc].flatten.each do |record|
-        update_domains!(record) unless @domain_names.empty?
+        update_reference_urls!(record) unless @reference_urls.empty?
         @solr.update params: { commitWithin: commit_within, overwrite: true },
                      data: [record].to_json,
                      headers: { 'Content-Type' => 'application/json' }
       end
     end
 
-    def update_domains!(record)
+    def update_reference_urls!(record)
       references = record['dct_references_s']
-      Config.domain_names.each do |name, from_domain|
-        to_domain = @domain_names[name.to_s]
-        references.gsub(from_domain, to_domain) if to_domain
+      Config.reference_urls.each do |name, from_url|
+        to_url = @reference_urls[name.to_s]
+        references.gsub(from_url, to_url) if to_url
       end
-      record['reference'] = references
+      record['dct_references_s'] = references
     end
   end
 end

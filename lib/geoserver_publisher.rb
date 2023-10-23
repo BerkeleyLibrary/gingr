@@ -36,9 +36,8 @@ module Gingr
     end
 
     def rest_url(uri)
-      url = "#{uri.scheme}://#{uri.host}#{uri.path}"
-      url = url.gsub('host.docker.internal', 'host.docker.internal:8080')
-      url.gsub('localhost', 'localhost:8080')
+      port = uri.port == 8080 ? ':8080' : ''
+      "#{uri.scheme}://#{uri.host}#{port}#{uri.path}"
     end
   end
 end
