@@ -5,5 +5,4 @@
 /import/*
 .irb_history
 .bash_history
-/solr/geodata-test/data/index/*
 

@@ -33,9 +33,8 @@ module Gingr
     option :geoserver_root
     option :public_access, type: :boolean, default: true
     def geoserver(filename)
-      env_url = options[:public_access] ? ENV.fetch('GEOSERVER_URL', nil) : ENV.fetch('GEOSERVER_SECURE_URL', nil)
-      url = options[:geoserver_url] || env_url
-
+      url = options[:geoserver_url]
+      url ||= options[:public_access] ? ENV.fetch('GEOSERVER_URL', nil) : ENV.fetch('GEOSERVER_SECURE_URL', nil)
       publisher = GeoserverPublisher.new(url)
       publisher.update(filename)
     end
@@ -45,7 +44,6 @@ module Gingr
     option :geoserver_root
     def unpack(zipfile)
       zipfile_path = File.join(root_path, 'import', zipfile)
-      puts(zipfile_path)
       DataHandler.spatial_root = options[:spatial_root] || ENV.fetch('SPATIAL_ROOT', nil)
       DataHandler.geoserver_root = options[:geoserver_root] || ENV.fetch('GEOSERVER_ROOT', nil)
 
@@ -66,8 +64,7 @@ module Gingr
     option :geoserver_url
     option :geoserver_secure_url
     def all(zipfile)
-      zipfile_path = File.join(root_path, 'import', zipfile)
-      unpacked = unpack(zipfile_path)
+      unpacked = unpack(zipfile)
       solr(unpacked[:extract_to_path])
 
       geofile_names = unpacked[:geofile_name_hash]
@@ -81,13 +78,16 @@ module Gingr
     private
 
     def publish_geoservers(geofile_names, options)
-      url = options[:geoserver_url] || ENV.fetch('GEOSERVER_URL', nil)
-      publisher = GeoserverPublisher.new(url)
-      publisher.batch_update(geofile_names[:public])
+      publish_geoserver_files(geofile_names[:public], options[:geoserver_url], true)
+      publish_geoserver_files(geofile_names[:ucb], options[:geoserver_secure_url], false)
+    end
 
-      url = options[:geoserver_secure_url] || ENV.fetch('GEOSERVER_SECURE_URL', nil)
+    def publish_geoserver_files(files, url, is_public)
+      return if files.empty?
+
+      url ||= is_public ? ENV.fetch('GEOSERVER_URL', nil) : ENV.fetch('GEOSERVER_SECURE_URL', nil)
       publisher = GeoserverPublisher.new(url)
-      publisher.batch_update(geofile_names[:ucb])
+      publisher.batch_update(files)
     end
 
     def index_solr_from_dir(directory_path, url, reference_domain_names)
