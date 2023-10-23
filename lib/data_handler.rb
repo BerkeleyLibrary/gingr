@@ -81,9 +81,10 @@ module Gingr
       end
 
       def access_type(dir)
-        data_hash = geoblacklight_hash(dir)
-        value = data_hash['dct_accessRights_s'].downcase
-        value == 'public' ? 'public' : 'UCB'
+        # data_hash = geoblacklight_hash(dir)
+        # value = data_hash['dct_accessRights_s'].downcase
+        # value == 'public' ? 'public' : 'UCB'
+        'public'
       end
 
       private
@@ -100,8 +101,9 @@ module Gingr
         format = data_hash['dct_format_s'].downcase
         ext = format == 'shapefile' ? '.shp' : '.tiff'
 
-        right = data_hash['dct_accessRights_s'].downcase
-        access = right == 'public' ? 'public' : 'ucb'
+        # right = data_hash['dct_accessRights_s'].downcase
+        # access = right == 'public' ? 'public' : 'ucb'
+        access = 'public'
 
         { name: "#{basename}#{ext}", access: }
       end

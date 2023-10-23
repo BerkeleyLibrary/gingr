@@ -29,7 +29,7 @@ module Gingr
 
     def update_domains!(record)
       references = record['dct_references_s']
-      Config.domain_names_hash.each do |name, from_domain|
+      Config.domain_names.each do |name, from_domain|
         to_domain = @domain_names[name.to_s]
         references.gsub(from_domain, to_domain) if to_domain
       end

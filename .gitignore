@@ -1,6 +1,6 @@
 /log/*
 /zold_app/*
-/geofiles/*
+/data/*
 /upload/*
 .irb_history
 .bash_history

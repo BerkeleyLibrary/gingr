@@ -4,9 +4,8 @@
 module Gingr
   # config info
   module Config
-    # key: class attribute names defined in solr_index.rb
     # value: domain from pre-ingestion tool
-    @domain_names_hash = {
+    @domain_names = {
       geoserver_secure: 'geoservices-secure.lib.berkeley.edu',
       geoserver: 'geoservices.lib.berkeley.edu/geoserver/',
       download: 'spatial.lib.berkeley.edu'
