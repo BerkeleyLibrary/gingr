@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 # require 'geoserver/publish'
+# require 'geoserver/publish/workspace'
 require_relative 'publish'
 require 'uri'
 require_relative 'config'
@@ -38,6 +39,11 @@ module Gingr
     def rest_url(uri)
       port = uri.port == 8080 ? ':8080' : ''
       "#{uri.scheme}://#{uri.host}#{port}#{uri.path}"
+    end
+
+    def create_workspace(name)
+      workspace = Geoserver::Publish::Workspace.new(@conn)
+      workspace.create(workspace_name: name)
     end
   end
 end

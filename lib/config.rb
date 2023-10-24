@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# referenced domain defined in pre-ingestion tool
+# referenced urls defined in pre-ingestion tool
 module Gingr
   # config info
   module Config

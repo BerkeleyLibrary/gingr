@@ -71,6 +71,21 @@ module Gingr
       publish_geoservers(geofile_names, options)
     end
 
+    desc 'create a workspace in geoserver', 'tt'
+    # long_desc <<-LONGDESC
+    #      publish a geofile with inputs of file basename and access type to geoserver,#{' '}
+    #      the geofile should have been already moved to geoserver before runng this task'
+    # LONGDESC
+    option :geoserver_url
+    option :geoserver_root
+    option :public_access, type: :boolean, default: true
+    def geoserver_workspace(name)
+      url = options[:geoserver_url]
+      url ||= options[:public_access] ? ENV.fetch('GEOSERVER_URL', nil) : ENV.fetch('GEOSERVER_SECURE_URL', nil)
+      publisher = GeoserverPublisher.new(url)
+      publisher.create_workspace(name)
+    end
+
     def self.exit_on_failure?
       true
     end
