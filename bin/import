@@ -12,10 +12,10 @@ module Gingr
   include Gingr::Config
   # ingestion tasks
   class Import < Thor
-    # include Thor::Actions
     Thor.check_unknown_options!
 
-    desc 'solr index within directory', 'Index json files from a directory to solr'
+    desc 'solr index within directory',
+         'It will index json files to solr from this directory and sub-directories'
     option :download_url
     option :geoserver_url
     option :geoserver_secure_url
@@ -23,26 +23,26 @@ module Gingr
     option :solr_url
     def solr(dir_path)
       reference_urls = get_reference_urls(options)
-      url = options[:solr_url] || ENV.fetch('SOLR_URL', nil)
-      index_solr_from_dir(dir_path, url, reference_urls)
+      solr_url = options[:solr_url] || ENV.fetch('SOLR_URL', nil)
+      index_solr_from_dir(dir_path, solr_url, reference_urls)
     end
 
     desc 'publish a geofile', 'publish a shapefile or GeoTIFF file'
-    # long_desc <<-LONGDESC
-    #      publish a geofile with inputs of file basename and access type to geoserver,#{' '}
-    #      the geofile should have been already moved to geoserver before runng this task'
-    # LONGDESC
+    long_desc <<-LONGDESC
+         examples: 1) ruby bin/import geoserver fk4cr7f93g.shp
+                   2) ruby bin/import geoserver fk4cr7f93g.shp  --is_public=false
+    LONGDESC
     option :geoserver_url
     option :geoserver_root
-    option :public_access, type: :boolean, default: true
+    option :is_public, type: :boolean, default: true
     def geoserver(filename)
       url = options[:geoserver_url]
-      url ||= options[:public_access] ? ENV.fetch('GEOSERVER_URL', nil) : ENV.fetch('GEOSERVER_SECURE_URL', nil)
+      url ||= options[:is_public] ? ENV.fetch('GEOSERVER_URL', nil) : ENV.fetch('GEOSERVER_SECURE_URL', nil)
       publisher = GeoserverPublisher.new(url)
       publisher.update(filename)
     end
 
-    desc 'unpack zip file to a directory', 'unpack a zip file to a directory'
+    desc 'unpack a zip file to a directory', 'unpack a zip file: geofile to geoserver_root, other files to spatial_root'
     option :spatial_root
     option :geoserver_root
     def unpack(zipfile)
@@ -54,12 +54,13 @@ module Gingr
       DataHandler.extract_and_move(zipfile_path, temp_path)
     end
 
-    desc 'move, index and publish all files to related servers', 'tt'
-    # long_desc <<-LONGDESC
-    #       1) move all souce files and metadata files to apache server,#{' '}
-    #       2) index all geoblacklight json files to solr,#{' '}
-    #       3) publish all geofiles to geoserver
-    # LONGDESC
+    desc 'ingest zip file to solr, geoserver and apache server', 'Move, index and publish all files to related servers'
+    long_desc <<-LONGDESC
+          1) move all geofiles to geoserver_root
+          2) move all data.zip, ISO19139.xml and document files to spatial_root
+          2) index all geoblacklight json files to solr
+          3) publish all geofiles to geoserver
+    LONGDESC
     option :solr_url
     option :update_reference_field, type: :boolean, default: false
     option :spatial_root
@@ -74,18 +75,16 @@ module Gingr
       publish_geoservers(geofile_names, options)
     end
 
-    desc 'create a workspace in geoserver', 'tt'
-    # long_desc <<-LONGDESC
-    #      publish a geofile with inputs of file basename and access type to geoserver,#{' '}
-    #      the geofile should have been already moved to geoserver before runng this task'
-    # LONGDESC
+    desc 'create a workspace in geoserver', 'create a workspace in geoserver'
+    long_desc <<-LONGDESC
+         This is for spec test. Geodata website only use one workspace "UCB"
+    LONGDESC
     option :geoserver_url
     option :geoserver_root
     option :public_access, type: :boolean, default: true
     def geoserver_workspace(name)
       url = options[:geoserver_url]
       url ||= options[:public_access] ? ENV.fetch('GEOSERVER_URL', nil) : ENV.fetch('GEOSERVER_SECURE_URL', nil)
-      puts url
       publisher = GeoserverPublisher.new(url)
       publisher.create_workspace(name)
     end
