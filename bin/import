@@ -19,6 +19,12 @@ module Gingr
 
     desc 'solr index within directory',
          'It will index json files to solr from this directory and sub-directories'
+    long_desc <<-LONGDESC
+         examples: 1) ruby bin/import solr tmp/test_public
+                   2) ruby bin/import solr tmp/test_public  --update_reference_field=true
+                     (it will update reference urls in geoblacklight 'dct_references_s' field
+                      with current download_url, geoserver_url, geoserver_secure_url)
+    LONGDESC
     option :download_url
     option :geoserver_url
     option :geoserver_secure_url
