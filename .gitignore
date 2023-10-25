@@ -6,3 +6,7 @@
 .irb_history
 .bash_history
 
+/solr/geodata-test/data/index/*
+/solr/geodata-test/data/tlog/*
+/solr/geodata/data/index/*
+/solr/geodata/data/tlog/*

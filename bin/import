@@ -12,6 +12,9 @@ module Gingr
   include Gingr::Config
   # ingestion tasks
   class Import < Thor
+    # include Thor::Actions
+    Thor.check_unknown_options!
+
     desc 'solr index within directory', 'Index json files from a directory to solr'
     option :download_url
     option :geoserver_url
@@ -24,7 +27,7 @@ module Gingr
       index_solr_from_dir(dir_path, url, reference_urls)
     end
 
-    desc 'publish a geofile', 'tt'
+    desc 'publish a geofile', 'publish a shapefile or GeoTIFF file'
     # long_desc <<-LONGDESC
     #      publish a geofile with inputs of file basename and access type to geoserver,#{' '}
     #      the geofile should have been already moved to geoserver before runng this task'
@@ -82,6 +85,7 @@ module Gingr
     def geoserver_workspace(name)
       url = options[:geoserver_url]
       url ||= options[:public_access] ? ENV.fetch('GEOSERVER_URL', nil) : ENV.fetch('GEOSERVER_SECURE_URL', nil)
+      puts url
       publisher = GeoserverPublisher.new(url)
       publisher.create_workspace(name)
     end
