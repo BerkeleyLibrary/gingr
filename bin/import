@@ -4,17 +4,17 @@ require 'thor'
 require_relative '../lib/data_handler'
 require_relative '../lib/solr_indexer'
 require_relative '../lib/geoserver_publisher'
-require_relative '../lib/util'
+require_relative '../lib/import_util'
 require 'find'
 require 'json'
 
 # Gingr module
 module Gingr
-  include Gingr::Config
-  include Gingr::Util
-
   # ingestion tasks
   class Import < Thor
+    include Config
+    include ImportUtil
+
     Thor.check_unknown_options!
 
     desc 'solr index within directory',
@@ -25,9 +25,9 @@ module Gingr
     option :update_reference_field, type: :boolean, default: false
     option :solr_url
     def solr(dir_path)
-      reference_urls = Util.get_reference_urls(options)
+      reference_urls = get_reference_urls(options)
       solr_url = options[:solr_url] || ENV.fetch('SOLR_URL', nil)
-      Util.index_solr_from_dir(dir_path, solr_url, reference_urls)
+      index_solr_from_dir(dir_path, solr_url, reference_urls)
     end
 
     desc 'publish a geofile', 'publish a shapefile or GeoTIFF file'
@@ -49,7 +49,7 @@ module Gingr
     option :spatial_root
     option :geoserver_root
     def unpack(zipfile)
-      zipfile_path = zipfile == File.basename(zipfile) ? File.join(Util.root_path, 'import', zipfile) : zipfile
+      zipfile_path = zipfile == File.basename(zipfile) ? File.join(root_path, 'import', zipfile) : zipfile
       DataHandler.spatial_root = options[:spatial_root] || ENV.fetch('SPATIAL_ROOT', nil)
       DataHandler.geoserver_root = options[:geoserver_root] || ENV.fetch('GEOSERVER_ROOT', nil)
 
@@ -75,7 +75,7 @@ module Gingr
       solr(unpacked[:extract_to_path])
 
       geofile_names = unpacked[:geofile_name_hash]
-      Util.publish_geoservers(geofile_names, options)
+      publish_geoservers(geofile_names, options)
     end
 
     desc 'create a workspace in geoserver', 'create a workspace in geoserver'
