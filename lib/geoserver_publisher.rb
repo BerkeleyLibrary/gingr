@@ -13,9 +13,6 @@ module Gingr
   class GeoserverPublisher
     def initialize(url)
       uri = URI(url)
-      puts rest_url(uri)
-      puts uri.user
-      puts uri.password
       @conn = Geoserver::Publish::Connection.new({ 'url' => rest_url(uri), 'user' => uri.user,
                                                    'password' => uri.password.to_s })
     end
@@ -23,7 +20,6 @@ module Gingr
     def update(filename)
       name = File.basename(filename, '.*')
       filepath = "file:///srv/geofiles/berkeley-#{name}/#{filename}"
-      puts filepath
 
       ext = File.extname(filename).downcase
       if ext == '.shp'

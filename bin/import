@@ -4,12 +4,15 @@ require 'thor'
 require_relative '../lib/data_handler'
 require_relative '../lib/solr_indexer'
 require_relative '../lib/geoserver_publisher'
+require_relative '../lib/util'
 require 'find'
 require 'json'
 
 # Gingr module
 module Gingr
   include Gingr::Config
+  include Gingr::Util
+
   # ingestion tasks
   class Import < Thor
     Thor.check_unknown_options!
@@ -22,9 +25,9 @@ module Gingr
     option :update_reference_field, type: :boolean, default: false
     option :solr_url
     def solr(dir_path)
-      reference_urls = get_reference_urls(options)
+      reference_urls = Util.get_reference_urls(options)
       solr_url = options[:solr_url] || ENV.fetch('SOLR_URL', nil)
-      index_solr_from_dir(dir_path, solr_url, reference_urls)
+      Util.index_solr_from_dir(dir_path, solr_url, reference_urls)
     end
 
     desc 'publish a geofile', 'publish a shapefile or GeoTIFF file'
@@ -46,7 +49,7 @@ module Gingr
     option :spatial_root
     option :geoserver_root
     def unpack(zipfile)
-      zipfile_path = zipfile == File.basename(zipfile) ? File.join(root_path, 'import', zipfile) : zipfile
+      zipfile_path = zipfile == File.basename(zipfile) ? File.join(Util.root_path, 'import', zipfile) : zipfile
       DataHandler.spatial_root = options[:spatial_root] || ENV.fetch('SPATIAL_ROOT', nil)
       DataHandler.geoserver_root = options[:geoserver_root] || ENV.fetch('GEOSERVER_ROOT', nil)
 
@@ -72,7 +75,7 @@ module Gingr
       solr(unpacked[:extract_to_path])
 
       geofile_names = unpacked[:geofile_name_hash]
-      publish_geoservers(geofile_names, options)
+      Util.publish_geoservers(geofile_names, options)
     end
 
     desc 'create a workspace in geoserver', 'create a workspace in geoserver'
@@ -91,55 +94,6 @@ module Gingr
 
     def self.exit_on_failure?
       true
-    end
-
-    private
-
-    def publish_geoservers(geofile_names, options)
-      publish_geoserver_files(geofile_names[:public], options[:geoserver_url], true)
-      publish_geoserver_files(geofile_names[:ucb], options[:geoserver_secure_url], false)
-    end
-
-    def publish_geoserver_files(files, url, is_public)
-      return if files.empty?
-
-      url ||= is_public ? ENV.fetch('GEOSERVER_URL', nil) : ENV.fetch('GEOSERVER_SECURE_URL', nil)
-      publisher = GeoserverPublisher.new(url)
-      publisher.batch_update(files)
-    end
-
-    def index_solr_from_dir(directory_path, url, reference_urls)
-      indexer = SolrIndexer.new(url, reference_urls)
-      Find.find(directory_path) do |path|
-        next unless File.extname(path).downcase == '.json'
-
-        indexer.update(path)
-      rescue RSolr::Error::Http => e
-        puts "Response body: #{e.response}"
-      end
-      indexer.solr.commit
-    end
-
-    def get_reference_urls(options)
-      update_reference_field = options[:update_reference_field]
-      return {} unless update_reference_field
-
-      hash = {}
-      Config.reference_urls.each_key do |key|
-        url = options[key.to_s] || ENV.fetch("#{key.upcase}_URL")
-        hash[key.to_s] = reference_url(url) if url
-      end
-      hash
-    end
-
-    def reference_url(url)
-      uri = URI(url)
-      port = uri.port == 8080 ? ':8080' : ''
-      "#{uri.scheme}://#{uri.host}#{port}"
-    end
-
-    def root_path
-      File.expand_path('..', __dir__)
     end
   end
 end
