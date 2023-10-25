@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'berkeley_library/logging'
+
 # referenced urls defined in pre-ingestion tool
 module Gingr
   # config info
@@ -14,8 +16,10 @@ module Gingr
     # dirname where all geofile related ingestion files located inside the ingestion zip file
     @geofile_ingestion_dirname = 'ingestion_files'
 
+    @logger = BerkeleyLibrary::Logging::Loggers.new_readable_logger('tmp/import.log')
+
     class << self
-      attr_accessor :name_domain_hash, :geofile_ingestion_dirname
+      attr_accessor :name_domain_hash, :geofile_ingestion_dirname, :logger
 
       include Config
     end

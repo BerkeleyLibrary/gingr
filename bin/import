@@ -28,6 +28,8 @@ module Gingr
       reference_urls = get_reference_urls(options)
       solr_url = options[:solr_url] || ENV.fetch('SOLR_URL', nil)
       index_solr_from_dir(dir_path, solr_url, reference_urls)
+      txt = "all json files under '#{dir_path}' and subdirectories have been indexed to solr #{solr_url} successfully"
+      Config.logger.info(txt)
     end
 
     desc 'publish a geofile', 'publish a shapefile or GeoTIFF file'
@@ -43,6 +45,7 @@ module Gingr
       url ||= options[:is_public] ? ENV.fetch('GEOSERVER_URL', nil) : ENV.fetch('GEOSERVER_SECURE_URL', nil)
       publisher = GeoserverPublisher.new(url)
       publisher.update(filename)
+      Config.logger.info("'#{name}' - published to geoserver #{url} successfully")
     end
 
     desc 'unpack a zip file to a directory', 'unpack a zip file: geofile to geoserver_root, other files to spatial_root'
@@ -76,6 +79,7 @@ module Gingr
 
       geofile_names = unpacked[:geofile_name_hash]
       publish_geoservers(geofile_names, options)
+      Config.logger.info("#{zipfile} - all imported")
     end
 
     desc 'create a workspace in geoserver', 'create a workspace in geoserver'
@@ -90,6 +94,7 @@ module Gingr
       url ||= options[:public_access] ? ENV.fetch('GEOSERVER_URL', nil) : ENV.fetch('GEOSERVER_SECURE_URL', nil)
       publisher = GeoserverPublisher.new(url)
       publisher.create_workspace(name)
+      Config.logger.info("geoserver workspace '#{name}' - created successfully")
     end
 
     def self.exit_on_failure?
