@@ -17,14 +17,15 @@ module Gingr
 
     Thor.check_unknown_options!
 
-    desc 'solr index within directory',
-         'It will index json files to solr from this directory and sub-directories'
-    long_desc <<-LONGDESC
-         examples: 1) ruby bin/import solr tmp/test_public
-                   2) ruby bin/import solr tmp/test_public  --update_reference_field=true
-                     (it will update reference urls in geoblacklight 'dct_references_s' field
-                      with current download_url, geoserver_url, geoserver_secure_url)
-    LONGDESC
+    desc 'solr',
+         'Giving a directory path, it will index all json files from the directory/sub-directory to solr'
+    long_desc <<-TEXT, wrapping: false
+          examples:\n
+          1) ruby bin/import solr tmp/test_public \n
+          2) ruby bin/import solr tmp/test_public  --update_reference_field=true \n
+            (it will update reference urls from 'dct_references_s' field in each geoblacklight json file \n
+            with current download_url, geoserver_url, geoserver_secure_url)
+    TEXT
     option :download_url
     option :geoserver_url
     option :geoserver_secure_url
@@ -38,11 +39,12 @@ module Gingr
       Config.logger.info(txt)
     end
 
-    desc 'publish a geofile', 'publish a shapefile or GeoTIFF file'
-    long_desc <<-LONGDESC
-         examples: 1) ruby bin/import geoserver fk4cr7f93g.shp
-                   2) ruby bin/import geoserver fk4cr7f93g.shp  --is_public=false
-    LONGDESC
+    desc 'geoserver', 'publish a giving shapefile or GeoTIFF file to a geoserver'
+    long_desc <<-TEXT, wrapping: false
+         examples: \n
+         1) ruby bin/import geoserver fk4cr7f93g.shp \n
+         2) ruby bin/import geoserver fk4cr7f93g.shp  --is_public=false
+    TEXT
     option :geoserver_url
     option :geoserver_root
     option :is_public, type: :boolean, default: true
@@ -54,7 +56,11 @@ module Gingr
       Config.logger.info("'#{name}' - published to geoserver #{url} successfully")
     end
 
-    desc 'unpack a zip file to a directory', 'unpack a zip file: geofile to geoserver_root, other files to spatial_root'
+    desc 'unpack',
+         'unpack a giving zip file, then move shapefiles and GeoTIFF files to geoserver_root, other files to spatial_root'
+    long_desc <<-TEXT, wrapping: false
+         * When giving a zip file without path, it will look for a zip file under /app/import/
+    TEXT
     option :spatial_root
     option :geoserver_root
     def unpack(zipfile)
@@ -66,13 +72,14 @@ module Gingr
       DataHandler.extract_and_move(zipfile_path, temp_path)
     end
 
-    desc 'ingest zip file to solr, geoserver and apache server', 'Move, index and publish all files to related servers'
-    long_desc <<-LONGDESC
-          1) move all geofiles to geoserver_root
-          2) move all data.zip, ISO19139.xml and document files to spatial_root
-          2) index all geoblacklight json files to solr
-          3) publish all geofiles to geoserver
-    LONGDESC
+    desc 'all',
+         'unpack a giving zip file, move files, index json files to solr and publish geofiles to geoservers'
+    long_desc <<-TEXT, wrapping: false
+          1) move all geofiles to geoserver_root \n
+          2) move all data.zip, ISO19139.xml and document files to spatial_root \n
+          2) index all geoblacklight json files to solr \n
+          3) publish all shapefiles and GeoTIFF files to geoserver \n
+    TEXT
     option :solr_url
     option :update_reference_field, type: :boolean, default: false
     option :spatial_root
@@ -88,9 +95,9 @@ module Gingr
       Config.logger.info("#{zipfile} - all imported")
     end
 
-    desc 'create a workspace in geoserver', 'create a workspace in geoserver'
+    desc 'geoserver workspace', 'create a workspace in a geoserver'
     long_desc <<-LONGDESC
-         This is for spec test. Geodata website only use one workspace "UCB"
+         This is for spec test. Geodata website only needs one workspace "UCB"
     LONGDESC
     option :geoserver_url
     option :geoserver_root
