@@ -95,16 +95,16 @@ module Gingr
       Config.logger.info("#{zipfile} - all imported")
     end
 
-    desc 'geoserver workspace', 'create a workspace in a geoserver'
+    desc 'geoserver_workspace', 'create a workspace in a geoserver'
     long_desc <<-LONGDESC
          This is for spec test. Geodata website only needs one workspace "UCB"
     LONGDESC
     option :geoserver_url
     option :geoserver_root
-    option :public_access, type: :boolean, default: true
+    option :is_public, type: :boolean, default: true
     def geoserver_workspace(name)
       url = options[:geoserver_url]
-      url ||= options[:public_access] ? ENV.fetch('GEOSERVER_URL', nil) : ENV.fetch('GEOSERVER_SECURE_URL', nil)
+      url ||= options[:is_public] ? ENV.fetch('GEOSERVER_URL', nil) : ENV.fetch('GEOSERVER_SECURE_URL', nil)
       publisher = GeoserverPublisher.new(url)
       publisher.create_workspace(name)
       Config.logger.info("geoserver workspace '#{name}' - created successfully")
