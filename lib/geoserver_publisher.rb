@@ -36,14 +36,16 @@ module Gingr
       filename_list.each { |filename| update(filename) }
     end
 
-    def rest_url(uri)
-      port = uri.port == 8080 ? ':8080' : ''
-      "#{uri.scheme}://#{uri.host}#{port}#{uri.path}"
-    end
-
     def create_workspace(name)
       workspace = Geoserver::Publish::Workspace.new(@conn)
       workspace.create(workspace_name: name)
+    end
+
+    private
+
+    def rest_url(uri)
+      port = uri.port == 8080 ? ':8080' : ''
+      "#{uri.scheme}://#{uri.host}#{port}#{uri.path}"
     end
   end
 end

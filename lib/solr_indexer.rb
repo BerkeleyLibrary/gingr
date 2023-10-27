@@ -17,15 +17,18 @@ module Gingr
     end
 
     def update(file_path)
+      no_update_needed = @reference_urls.empty?
       commit_within = ENV.fetch('SOLR_COMMIT_WITHIN', 5000).to_i
       doc = JSON.parse(File.read(file_path))
       [doc].flatten.each do |record|
-        update_reference_urls!(record) unless @reference_urls.empty?
+        update_reference_urls!(record) unless no_update_needed
         @solr.update params: { commitWithin: commit_within, overwrite: true },
                      data: [record].to_json,
                      headers: { 'Content-Type' => 'application/json' }
       end
     end
+
+    private
 
     def update_reference_urls!(record)
       references = record['dct_references_s']

@@ -17,7 +17,7 @@ module Gingr
       attr_accessor :spatial_root, :geoserver_root
 
       def extract_and_move(zip_file, to_dir_path)
-        extract_to_path = make_dir(to_dir_path, File.basename(zip_file, '.*'))
+        extract_to_path = make_subdirectory(to_dir_path, File.basename(zip_file, '.*'))
         extract_zipfile(zip_file, extract_to_path)
 
         geofile_ingestion_dir_path = move_files(extract_to_path)
@@ -38,13 +38,12 @@ module Gingr
       def move_files(from_dir_path)
         geofile_ingestion_dir_path = File.join(from_dir_path, Config.geofile_ingestion_dirname)
         subdirectory_list(geofile_ingestion_dir_path).each do |subdirectory_path|
-          move_ingestion_files(subdirectory_path)
+          move_a_record(subdirectory_path)
         end
         geofile_ingestion_dir_path
       end
 
-      # move ingestion files from a structured ingestion zip file
-      def move_ingestion_files(dir_path)
+      def move_a_record(dir_path)
         subfile_list(dir_path).each do |file|
           if File.basename(file) == 'map.zip'
             dest_dir_path = file_path(dir_path, @geoserver_root)
@@ -56,7 +55,7 @@ module Gingr
         end
       end
 
-      def make_dir(dir_path, subdir_name)
+      def make_subdirectory(dir_path, subdir_name)
         subdir_path = File.join(dir_path, subdir_name)
         Dir.mkdir(subdir_path) unless File.directory? subdir_path
         subdir_path
@@ -81,8 +80,8 @@ module Gingr
       end
 
       def access_type(dir)
-        data_hash = geoblacklight_hash(dir)
-        value = data_hash['dct_accessRights_s'].downcase
+        json_hash = geoblacklight_hash(dir)
+        value = json_hash['dct_accessRights_s'].downcase
         value == 'public' ? 'public' : 'UCB'
       end
 
@@ -96,11 +95,11 @@ module Gingr
 
       def name_access_hash(dir)
         basename = File.basename(dir).split('_').last
-        data_hash = geoblacklight_hash(dir)
-        format = data_hash['dct_format_s'].downcase
+        json_hash = geoblacklight_hash(dir)
+        format = json_hash['dct_format_s'].downcase
         ext = format == 'shapefile' ? '.shp' : '.tiff'
-        right = data_hash['dct_accessRights_s'].downcase
-        { name: "#{basename}#{ext}", public_access: right == 'public' }
+        access_right = json_hash['dct_accessRights_s'].downcase
+        { name: "#{basename}#{ext}", public_access: access_right == 'public' }
       end
 
       def unzip_map_files(dest_dir, map_zipfile)
