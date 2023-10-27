@@ -22,7 +22,7 @@ module Gingr
     long_desc <<-TEXT, wrapping: false
           examples:\n
           1) ruby bin/import solr tmp/test_public \n
-          2) ruby bin/import solr tmp/test_public  --update_reference_field=true \n
+          2) ruby bin/import solr tmp/test_public  --no-update_reference_field \n
             (it will update reference urls from 'dct_references_s' field in each geoblacklight json file \n
             with current download_url, geoserver_url, geoserver_secure_url)
     TEXT
@@ -43,7 +43,7 @@ module Gingr
     long_desc <<-TEXT, wrapping: false
          examples: \n
          1) ruby bin/import geoserver fk4cr7f93g.shp \n
-         2) ruby bin/import geoserver fk4cr7f93g.shp  --is_public=false
+         2) ruby bin/import geoserver fk4h14n50v.shp  --no-is-public
     TEXT
     option :geoserver_url
     option :geoserver_root
@@ -57,7 +57,7 @@ module Gingr
     end
 
     desc 'unpack',
-         'unpack a giving zip file, then move shapefiles and GeoTIFF files to geoserver_root, other files to spatial_root'
+         'unpack a giving zip file, move shapefiles and GeoTIFF files to geoserver_root, other files to spatial_root'
     long_desc <<-TEXT, wrapping: false
          * When giving a zip file without path, it will look for a zip file under /app/import/
     TEXT
