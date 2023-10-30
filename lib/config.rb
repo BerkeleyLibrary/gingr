@@ -2,18 +2,18 @@
 
 require 'berkeley_library/logging'
 
-# referenced urls defined in pre-ingestion tool
+# Gingr
 module Gingr
   # config info
   module Config
-    # value: domain from pre-ingestion tool
+    # value: urls poplated for reference field in pre-ingestion tool
     @reference_urls = {
       geoserver_secure: 'https://geoservices-secure.lib.berkeley.edu',
       geoserver: 'https://geoservices.lib.berkeley.edu/geoserver',
       download: 'https://spatial.lib.berkeley.edu'
     }
 
-    # dirname where all geofile related ingestion files located inside the ingestion zip file
+    # dirname where all geofile related ingestion files located inside the ingestion zipfile
     @geofile_ingestion_dirname = 'ingestion_files'
 
     @logger = BerkeleyLibrary::Logging::Loggers.new_readable_logger('tmp/import.log')

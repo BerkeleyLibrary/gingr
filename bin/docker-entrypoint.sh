@@ -2,7 +2,7 @@
 
 # unpack zipfile
 echo "1 - unpack zipfile starting..."
-ruby bin/import unpack spec/data/zipfile/test_public.zip
+ruby bin/import unpack spec/fixture/zipfile/test_public.zip
 echo "unpack zipfile ends"
 
 # index solr
@@ -24,4 +24,6 @@ echo "index solr ends"
 # echo "publish raster to geoserver ends"
 
 
-
+echo "4 - import all starting..."
+ruby bin/import all test_public.zip
+echo "import all ends"

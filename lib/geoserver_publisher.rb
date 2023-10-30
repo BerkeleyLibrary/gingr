@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# require 'geoserver/publish'
-# require 'geoserver/publish/workspace'
 require_relative 'publish'
 require 'uri'
 require_relative 'config'
@@ -9,7 +7,7 @@ require_relative 'config'
 # Ginger module
 module Gingr
   include Gingr::Config
-  # publish service to geoserver
+  # publish services to geoserver
   class GeoserverPublisher
     def initialize(url)
       uri = URI(url)
@@ -20,16 +18,20 @@ module Gingr
     def update(filename)
       name = File.basename(filename, '.*')
       filepath = "file:///srv/geofiles/berkeley-#{name}/#{filename}"
+      File.extname(filename).downcase == '.shp' ? publish_shapefile(filepath, name) : pulsih_geotiff(filepath, name)
+    rescue Geoserver::Publish::Error
+      Config.logger.error("Publish Geoserver error: #{filename}")
+      raise
+    end
 
-      ext = File.extname(filename).downcase
-      if ext == '.shp'
+    def publish_shapefile(filepath, name)
+      Geoserver::Publish.shapefile(connection: @conn, workspace_name: 'UCB', file_path: filepath,
+                                   id: name, title: name)
+    end
 
-        Geoserver::Publish.shapefile(connection: @conn, workspace_name: 'UCB', file_path: filepath,
-                                     id: name, title: name)
-      elsif ext == '.tiff'
-        Geoserver::Publish.geotiff(connection: @conn, workspace_name: 'UCB', file_path: filepath, id: name,
-                                   title: name)
-      end
+    def pulsih_geotiff(filepath, name)
+      Geoserver::Publish.geotiff(connection: @conn, workspace_name: 'UCB', file_path: filepath, id: name,
+                                 title: name)
     end
 
     def batch_update(filename_list)
@@ -42,6 +44,8 @@ module Gingr
     end
 
     private
+
+    def publish(filename); end
 
     def rest_url(uri)
       port = uri.port == 8080 ? ':8080' : ''

@@ -15,7 +15,8 @@ module Gingr
 
         indexer.update(path)
       rescue RSolr::Error::Http => e
-        puts "Response body: #{e.response}"
+        Config.logger.error("Solr index error: #{e.response}")
+        raise
       end
       indexer.solr.commit
     end

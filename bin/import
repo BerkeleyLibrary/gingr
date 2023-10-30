@@ -53,7 +53,7 @@ module Gingr
       url ||= options[:is_public] ? ENV.fetch('GEOSERVER_URL', nil) : ENV.fetch('GEOSERVER_SECURE_URL', nil)
       publisher = GeoserverPublisher.new(url)
       publisher.update(filename)
-      Config.logger.info("'#{name}' - published to geoserver #{url} successfully")
+      Config.logger.info("'#{filename}' - published to geoserver #{url} successfully")
     end
 
     desc 'unpack',

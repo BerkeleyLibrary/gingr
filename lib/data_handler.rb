@@ -3,6 +3,7 @@
 require 'zip'
 require 'pathname'
 require_relative 'config'
+require 'fileutils'
 
 # Ginger module
 module Gingr
@@ -24,9 +25,7 @@ module Gingr
         { extract_to_path:, geofile_name_hash: get_geofile_name_hash(geofile_ingestion_dir_path) }
       end
 
-      # workflow to be discuss: need to remove the extract_to_path before extract zipfile?
       def extract_zipfile(zip_file, extract_to_path)
-        Dir.mkdir(extract_to_path) unless File.directory? extract_to_path
         Zip::File.open(zip_file) do |zip|
           zip.each do |entry|
             entry_path = File.join(extract_to_path, entry.name)
@@ -55,10 +54,15 @@ module Gingr
         end
       end
 
+      # remove the subdirectory before creating it
       def make_subdirectory(dir_path, subdir_name)
         subdir_path = File.join(dir_path, subdir_name)
-        Dir.mkdir(subdir_path) unless File.directory? subdir_path
+        FileUtils.rm_r(subdir_path) if File.directory? subdir_path
+        Dir.mkdir(subdir_path)
         subdir_path
+      rescue Errno::EACCES
+        Config.logger.error("Permission denied: #{subdir_path}")
+        raise
       end
 
       def subdirectory_list(directory_path)
