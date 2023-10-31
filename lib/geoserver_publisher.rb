@@ -47,7 +47,7 @@ module Gingr
 
     def rest_url(uri)
       uri_port = uri.port.to_s
-      port = uri_port.start_with?('80') ? uri_port : ''
+      port = uri_port.start_with?('80') ? ":#{uri_port}" : ''
       "#{uri.scheme}://#{uri.host}#{port}#{uri.path}"
     end
   end

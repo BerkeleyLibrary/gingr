@@ -5,6 +5,8 @@
 /import/*
 .irb_history
 .bash_history
+.bundle/*
+./local/*
 
 /solr/geodata-test/data/index/*
 /solr/geodata-test/data/tlog/*
