@@ -25,5 +25,5 @@ echo "publish vector to geoserver ends"
 
 # import all with a zipfile
 echo "4 - import all starting..."
-ruby bin/import all test_public.zip
+ruby bin/import all spec/fixture/zipfile/test_public.zip
 echo "import all ends"
