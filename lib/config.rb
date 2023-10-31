@@ -19,7 +19,7 @@ module Gingr
     @logger = BerkeleyLibrary::Logging::Loggers.new_readable_logger('tmp/import.log')
 
     class << self
-      attr_accessor :name_domain_hash, :geofile_ingestion_dirname, :logger
+      attr_accessor :reference_urls, :geofile_ingestion_dirname, :logger
 
       include Config
     end

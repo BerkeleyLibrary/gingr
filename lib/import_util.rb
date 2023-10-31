@@ -1,8 +1,12 @@
 # frozen_string_literal: true
 
+require_relative 'config'
+
 module Gingr
   # util methods
   module ImportUtil
+    include Gingr::Config
+
     def publish_geoservers(geofile_names, options)
       publish_geoserver_files(geofile_names[:public], options[:geoserver_url], true)
       publish_geoserver_files(geofile_names[:ucb], options[:geoserver_secure_url], false)
@@ -30,6 +34,7 @@ module Gingr
         url = options[key.to_s] || ENV.fetch("#{key.upcase}_URL")
         hash[key.to_s] = reference_url(url) if url
       end
+      puts hash
       hash
     end
 
