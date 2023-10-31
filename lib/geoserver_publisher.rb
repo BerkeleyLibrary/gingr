@@ -45,10 +45,9 @@ module Gingr
 
     private
 
-    def publish(filename); end
-
     def rest_url(uri)
-      port = uri.port == 8080 ? ':8080' : ''
+      uri_port = uri.port.to_s
+      port = uri_port.start_with?('80') ? uri_port : ''
       "#{uri.scheme}://#{uri.host}#{port}#{uri.path}"
     end
   end

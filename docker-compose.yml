@@ -10,10 +10,10 @@ services:
 
       # Separated geoserver urls
       # GEOSERVER_URL: http://admin:geoserver@host.docker.internal:8080/geoserver/rest/
-      # GEOSERVER_SECURE_URL: http://admin:geoserver@host.docker.internal:8080/geoserver/rest/
+      # GEOSERVER_SECURE_URL: http://admin:geoserver@host.docker.internal:8089/geoserver/rest/
 
       GEOSERVER_URL: http://admin:geoserver@geoserver:8080/geoserver/rest/
-      GEOSERVER_SECURE_URL: http://admin:geoserver@geoserver:8080/geoserver/rest/
+      GEOSERVER_SECURE_URL: http://admin:geoserver@geoserver:8089/geoserver/rest/
 
       DOWNLOAD_URL: https://spatial.lib.berkeley.edu/
 
@@ -34,5 +34,11 @@ services:
       - 8080:8080
     volumes:
       - ./data/geoserver/public:/srv/geofiles:delegated
+  # geoserver_secure:
+  #   image: containers.lib.berkeley.edu/gis/geoserver/v2.23.2
+  #   ports:
+  #     - 8089:8089
+  #   volumes:
+  #     - ./data/geoserver/UCB:/srv/geofiles:delegated
 
 version: "3.7"
