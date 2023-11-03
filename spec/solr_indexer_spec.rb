@@ -3,7 +3,7 @@ require_relative '../lib/solr_indexer'
 
 module Gingr
   describe SolrIndexer do
-    let(:url) { ENV.fetch('SOLR_URL') || 'http://solr:8983/solr/geodata-test' }
+    let(:url) { ENV['SOLR_URL'] || 'http://solr:8983/solr/geodata-test' }
     let(:file_path) { 'spec/fixture/jsonfile/berkeley_public_pdf.json' }
     context '# not empty reference_urls' do
       let(:reference_urls) do
@@ -22,7 +22,7 @@ module Gingr
         solr_indexer.update(file_path)
       end
 
-      it 'shoule update reference field' do
+      it 'should update reference field' do
         solr_indexer.send(:update_reference_urls!, record)
         # change to not use this long string when getting real data
         updated_reference_field = '{"http://www.opengis.net/def/serviceType/ogc/wfs":"http://fake_geoserver:8080/wfs","http://www.opengis.net/def/serviceType/ogc/wms":"http://fake_geoserver:8080/wms","http://www.isotc211.org/schemas/2005/gmd/":"https://spatial.ucblib.org/metadata/berkeley-s7038h/iso19139.xml","http://schema.org/downloadUrl":"https://spatial.ucblib.org/public/berkeley-s7038h/data.zip","http://lccn.loc.gov/sh85035852":"https://spatial.ucblib.org/public/berkeley-s7038h/x.pdf"}'

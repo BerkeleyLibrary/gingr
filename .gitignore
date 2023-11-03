@@ -8,7 +8,7 @@
 .bundle/*
 ./local/*
 
-/solr/geodata-test/data/index/*
-/solr/geodata-test/data/tlog/*
-/solr/geodata/data/index/*
-/solr/geodata/data/tlog/*
+/solr/geodata-test/data
+/solr/geodata-test/data
+/solr/geodata/data
+/solr/geodata/data

@@ -1,12 +1,11 @@
-# frozen_string_literal: true
-
-require 'thor'
-require_relative '../lib/data_handler'
-require_relative '../lib/solr_indexer'
-require_relative '../lib/geoserver_publisher'
-require_relative '../lib/import_util'
+#!/usr/bin/env ruby
 require 'find'
 require 'json'
+require 'thor'
+require_relative '../lib/data_handler'
+require_relative '../lib/geoserver_publisher'
+require_relative '../lib/import_util'
+require_relative '../lib/solr_indexer'
 
 # Gingr module
 module Gingr

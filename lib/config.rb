@@ -16,7 +16,7 @@ module Gingr
     # dirname where all geofile related ingestion files located inside the ingestion zipfile
     @geofile_ingestion_dirname = 'ingestion_files'
 
-    @logger = BerkeleyLibrary::Logging::Loggers.new_readable_logger('tmp/import.log')
+    @logger = BerkeleyLibrary::Logging::Loggers.new_readable_logger(STDOUT)
 
     class << self
       attr_accessor :reference_urls, :geofile_ingestion_dirname, :logger
