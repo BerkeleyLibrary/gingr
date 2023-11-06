@@ -1,32 +1,47 @@
 ---
 
+version: "3.8"
+
 services:
   app:
     build: .
-    volumes:
-      - ./:/opt/app:delegated
+    command:
+      - tail
+      - -f
+      - /dev/null
+    develop:
+      watch:
+        - path: .
+          target: /opt/app
+          ignore:
+            - .ruby-version
+            - Dockerfile
+            - Gemfile*
+          action: sync
+        - path: .ruby-version
+          action: rebuild
+        - path: Dockerfile
+          action: rebuild
+        - path: Gemfile*
+          action: rebuild
     environment:
-      SOLR_URL: http://solr:8983/solr/geodata-test
-
-      # Separated geoserver urls
-      # GEOSERVER_URL: http://admin:geoserver@host.docker.internal:8080/geoserver/rest/
-      # GEOSERVER_SECURE_URL: http://admin:geoserver@host.docker.internal:8089/geoserver/rest/
-
-      GEOSERVER_URL: http://admin:geoserver@geoserver:8080/geoserver/rest/
-      GEOSERVER_SECURE_URL: http://admin:geoserver@geoserver:8089/geoserver/rest/
-
       DOWNLOAD_URL: https://spatial.lib.berkeley.edu/
-
-      SPATIAL_ROOT: data/spatial/
       GEOSERVER_ROOT: data/geoserver/
+      GEOSERVER_SECURE_URL: http://admin:geoserver@geoserver_secure:8080/geoserver/rest/
+      GEOSERVER_URL: http://admin:geoserver@geoserver:8080/geoserver/rest/
+      SOLR_URL: http://solr:8983/solr/geodata-test
+      SPATIAL_ROOT: data/spatial/
+    restart: no
 
   solr:
-    image: solr:${SOLR_VERSION:-8.11.1}
-    restart: always
+    command: >
+      bash -c 'echo geodata geodata-test | xargs -n1 precreate-core && solr-foreground'
+    image: solr:8.11.2
     ports:
       - 8983:8983
+    restart: always
     volumes:
-      - ./solr:/var/solr/data/configsets/solr:delegated
+      - ./solr:/opt/solr/server/solr/configsets:ro
 
   geoserver:
     image: containers.lib.berkeley.edu/gis/geoserver/v2.23.2
@@ -34,11 +49,10 @@ services:
       - 8080:8080
     volumes:
       - ./data/geoserver/public:/srv/geofiles:delegated
-  # geoserver_secure:
-  #   image: containers.lib.berkeley.edu/gis/geoserver/v2.23.2
-  #   ports:
-  #     - 8089:8089
-  #   volumes:
-  #     - ./data/geoserver/UCB:/srv/geofiles:delegated
 
-version: "3.7"
+  geoserver_secure:
+    image: containers.lib.berkeley.edu/gis/geoserver/v2.23.2
+    ports:
+      - 8081:8080
+    volumes:
+      - ./data/geoserver/UCB:/srv/geofiles:delegated
