@@ -31,9 +31,9 @@ module Gingr
     option :update_reference_field, type: :boolean, default: false
     option :solr_url
     def solr(dir_path)
-      reference_urls = get_reference_urls(options)
+      reference_urls = ImportUtil.get_reference_urls(options)
       solr_url = options[:solr_url] || ENV.fetch('SOLR_URL', nil)
-      index_solr_from_dir(dir_path, solr_url, reference_urls)
+      ImportUtil.index_solr_from_dir(dir_path, solr_url, reference_urls)
       txt = "all json files under '#{dir_path}' and subdirectories have been indexed to solr #{solr_url} successfully"
       Config.logger.info(txt)
     end
@@ -45,7 +45,6 @@ module Gingr
          2) ruby bin/import geoserver fk4h14n50v.shp  --no-is-public
     TEXT
     option :geoserver_url
-    option :geoserver_root
     option :is_public, type: :boolean, default: true
     def geoserver(filename)
       url = options[:geoserver_url]
@@ -63,7 +62,7 @@ module Gingr
     option :spatial_root
     option :geoserver_root
     def unpack(zipfile)
-      zipfile_path = zipfile == File.basename(zipfile) ? File.join(root_path, 'import', zipfile) : zipfile
+      zipfile_path = zipfile == File.basename(zipfile) ? File.join(ImportUtil.root_path, 'import', zipfile) : zipfile
       DataHandler.spatial_root = options[:spatial_root] || ENV.fetch('SPATIAL_ROOT', nil)
       DataHandler.geoserver_root = options[:geoserver_root] || ENV.fetch('GEOSERVER_ROOT', nil)
 
@@ -90,7 +89,7 @@ module Gingr
       solr(unpacked[:extract_to_path])
 
       geofile_names = unpacked[:geofile_name_hash]
-      publish_geoservers(geofile_names, options)
+      ImportUtil.publish_geoservers(geofile_names, options)
       Config.logger.info("#{zipfile} - all imported")
     end
 
@@ -99,7 +98,6 @@ module Gingr
          This is for spec test. Geodata website only needs one workspace "UCB"
     LONGDESC
     option :geoserver_url
-    option :geoserver_root
     option :is_public, type: :boolean, default: true
     def geoserver_workspace(name)
       url = options[:geoserver_url]

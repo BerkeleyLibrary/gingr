@@ -8,9 +8,9 @@ module Gingr
   module Config
     # value: urls poplated for reference field in pre-ingestion tool
     @reference_urls = {
-      geoserver_secure: 'https://geoservices-secure.lib.berkeley.edu',
-      geoserver: 'https://geoservices.lib.berkeley.edu/geoserver',
-      download: 'https://spatial.lib.berkeley.edu'
+      geoserver_secure_url: 'https://geoservices-secure.lib.berkeley.edu',
+      geoserver_url: 'https://geoservices.lib.berkeley.edu/geoserver',
+      download_url: 'https://spatial.lib.berkeley.edu'
     }
 
     # dirname where all geofile related ingestion files located inside the ingestion zipfile

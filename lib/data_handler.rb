@@ -18,20 +18,21 @@ module Gingr
       attr_accessor :spatial_root, :geoserver_root
 
       def extract_and_move(zip_file, to_dir_path)
-        extract_to_path = make_subdirectory(to_dir_path, File.basename(zip_file, '.*'))
-        extract_zipfile(zip_file, extract_to_path)
+        extract_to_path = extract_zipfile(zip_file, to_dir_path)
 
         geofile_ingestion_dir_path = move_files(extract_to_path)
         { extract_to_path:, geofile_name_hash: get_geofile_name_hash(geofile_ingestion_dir_path) }
       end
 
-      def extract_zipfile(zip_file, extract_to_path)
+      def extract_zipfile(zip_file, to_dir_path)
+        extracted_to_path = clr_subdirectory(zip_file, to_dir_path)
         Zip::File.open(zip_file) do |zip|
           zip.each do |entry|
-            entry_path = File.join(extract_to_path, entry.name)
+            entry_path = File.join(to_dir_path, entry.name)
             entry.extract(entry_path) { true }
           end
         end
+        extracted_to_path
       end
 
       def move_files(from_dir_path)
@@ -54,11 +55,11 @@ module Gingr
         end
       end
 
-      # remove the subdirectory before creating it
-      def make_subdirectory(dir_path, subdir_name)
-        subdir_path = File.join(dir_path, subdir_name)
+      # remove the subdirectory if it exists
+      def clr_subdirectory(zip_file, to_dir_path)
+        subdir_name = File.basename(zip_file, '.*')
+        subdir_path = File.join(to_dir_path, subdir_name)
         FileUtils.rm_r(subdir_path) if File.directory? subdir_path
-        Dir.mkdir(subdir_path)
         subdir_path
       rescue Errno::EACCES
         Config.logger.error("Permission denied: #{subdir_path}")
@@ -101,7 +102,7 @@ module Gingr
         basename = File.basename(dir).split('_').last
         json_hash = geoblacklight_hash(dir)
         format = json_hash['dct_format_s'].downcase
-        ext = format == 'shapefile' ? '.shp' : '.tiff'
+        ext = format == 'shapefile' ? '.shp' : '.tif'
         access_right = json_hash['dct_accessRights_s'].downcase
         { name: "#{basename}#{ext}", public_access: access_right == 'public' }
       end
