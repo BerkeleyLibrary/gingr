@@ -1,7 +1,5 @@
 # frozen_string_literal: true
-
 require 'spec_helper'
-require_relative '../lib/import_util'
 
 RSpec.describe Gingr::ImportUtil do
   let(:reference_urls) do

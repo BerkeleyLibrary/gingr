@@ -1,7 +1,5 @@
 # frozen_string_literal: true
-
 require 'spec_helper'
-require_relative '../lib/solr_indexer'
 
 RSpec.describe Gingr::SolrIndexer do
   let(:url) { 'http://solr:8983/solr/geodata-test' }

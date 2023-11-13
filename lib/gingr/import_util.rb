@@ -1,15 +1,13 @@
 # frozen_string_literal: true
-
-require_relative 'config'
-require_relative 'solr_indexer'
-require_relative 'geoserver_publisher'
-
 require 'uri'
+require_relative 'config'
+require_relative 'geoserver_publisher'
+require_relative 'solr_indexer'
 
 module Gingr
-  # util methods for bin/import
   module ImportUtil
     include Gingr::Config
+
     class << self
       def publish_geoservers(geofile_names, options)
         publish_geoserver_files(geofile_names[:public], options[:geoserver_url], true)

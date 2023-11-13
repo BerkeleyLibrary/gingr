@@ -1,14 +1,12 @@
 # frozen_string_literal: true
-
-require_relative 'publish'
+require_relative '../monkeypatch/geoserver/publish'
 require 'uri'
 require_relative 'config'
 
-# Ginger module
 module Gingr
-  include Gingr::Config
-  # publish services to geoserver
   class GeoserverPublisher
+    include Gingr::Config
+
     def initialize(url)
       uri = URI(url)
       @conn = Geoserver::Publish::Connection.new({ 'url' => rest_url(uri), 'user' => uri.user,
