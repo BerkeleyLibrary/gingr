@@ -1,26 +1,10 @@
 # frozen_string_literal: true
+require 'geoserver/publish'
 
-require 'erb'
-require 'faraday'
-require 'json'
-require 'yaml'
-
+# Monkey-patch geoserver-publish gem to prefix everything with berkeley_
+# @note Is this really necessary?
 module Geoserver
-  # from geoserver-publish gem: get a specific store name
   module Publish
-    require 'geoserver/publish/config'
-    require 'geoserver/publish/connection'
-    require 'geoserver/publish/coverage'
-    require 'geoserver/publish/coverage_store'
-    require 'geoserver/publish/create'
-    require 'geoserver/publish/data_store'
-    require 'geoserver/publish/feature_type'
-    require 'geoserver/publish/geowebcache'
-    require 'geoserver/publish/layer'
-    require 'geoserver/publish/style'
-    require 'geoserver/publish/version'
-    require 'geoserver/publish/workspace'
-
     def self.delete_geotiff(workspace_name:, id:, connection: nil)
       coverage_store_name = "berkeley_#{id}"
       CoverageStore.new(connection).delete(workspace_name:, coverage_store_name:)
@@ -46,13 +30,6 @@ module Geoserver
       create_data_store(workspace_name:, data_store_name:, url: file_path, connection:)
       create_feature_type(workspace_name:, data_store_name:, feature_type_name: id, title:,
                           connection:)
-    end
-
-    def self.root
-      Pathname.new(File.expand_path('../..', __dir__))
-    end
-
-    class Error < StandardError
     end
   end
 end

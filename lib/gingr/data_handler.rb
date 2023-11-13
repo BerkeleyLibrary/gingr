@@ -1,13 +1,10 @@
 # frozen_string_literal: true
-
-require 'zip'
-require 'pathname'
-require_relative 'config'
 require 'fileutils'
+require 'pathname'
+require 'zip'
+require_relative 'config'
 
-# Ginger module
 module Gingr
-  # handle ingestion data
   module DataHandler
     include Gingr::Config
 

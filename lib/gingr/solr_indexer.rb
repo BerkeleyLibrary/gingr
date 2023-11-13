@@ -1,14 +1,12 @@
 # frozen_string_literal: true
-
-require 'rsolr'
 require 'faraday/net_http_persistent'
+require 'rsolr'
 require_relative 'config'
 
-# Ginger module
 module Gingr
-  include Gingr::Config
-  # index solr for Gingr
   class SolrIndexer
+    include Gingr::Config
+
     attr_reader :solr, :need_update_reference_urls
 
     def initialize(url, reference_urls = {})
