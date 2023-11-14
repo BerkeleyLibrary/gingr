@@ -2,6 +2,7 @@
 require 'thor'
 require_relative 'config'
 require_relative 'import_util'
+require_relative 'watcher'
 
 module Gingr
   class Cli < Thor
@@ -9,6 +10,23 @@ module Gingr
     include ImportUtil
 
     Thor.check_unknown_options!
+
+    desc 'watch', 'Watches a Gingr directory for files ready to be processed'
+    long_desc <<-TEXT, wrapping: false
+    EXAMPLES
+      gingr watch data/gingr --solr-url=https://foo:bar@solr.lib.berkeley.edu:8983/solr/geodata ...
+    TEXT
+    option :solr_url
+    option :update_reference_field, type: :boolean, default: false
+    option :spatial_root
+    option :geoserver_root
+    option :geoserver_url
+    option :geoserver_secure_url
+    def watch(root_dir = nil)
+      root_dir ||= ENV['GINGR_WATCH_DIRECTORY'] || '/opt/app/data/gingr'
+      watcher = Gingr::Watcher.new(root_dir, *options)
+      watcher.start!
+    end
 
     desc 'solr',
          'Giving a directory path, it will index all json files from the directory/sub-directory to solr'

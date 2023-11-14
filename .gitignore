@@ -1,6 +1,5 @@
 /log/*
 /zold_app/*
-/data/*
 /tmp/*
 /import/*
 .irb_history
@@ -8,7 +7,15 @@
 .bundle/*
 ./local/*
 
+/data/*
+!/data/gingr
+/data/gingr/ready/*
+/data/gingr/processed/*
+/data/gingr/failed/*
+
 /solr/geodata-test/data
 /solr/geodata-test/data
 /solr/geodata/data
 /solr/geodata/data
+
+!**/.keep
