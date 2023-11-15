@@ -1,16 +1,19 @@
 # frozen_string_literal: true
 require 'geoserver/publish'
 require 'uri'
-require_relative 'config'
+require_relative 'logging'
 
 module Gingr
   class GeoserverPublisher
-    include Gingr::Config
+    include Logging
 
     def initialize(url)
       uri = URI(url)
-      @conn = Geoserver::Publish::Connection.new({ 'url' => rest_url(uri), 'user' => uri.user,
-                                                   'password' => uri.password.to_s })
+      @conn = Geoserver::Publish::Connection.new({
+        'url' => rest_url(uri),
+        'user' => uri.user,
+        'password' => uri.password.to_s,
+      })
     end
 
     def update(filename)
@@ -18,7 +21,7 @@ module Gingr
       filepath = "file:///srv/geofiles/berkeley-#{name}/#{filename}"
       File.extname(filename).downcase == '.shp' ? publish_shapefile(filepath, name) : pulsih_geotiff(filepath, name)
     rescue Geoserver::Publish::Error => e
-      Config.logger.error("Publish Geoserver error: #{filename} -- #{e.inspect}")
+      logger.error("Publish Geoserver error: #{filename} -- #{e.inspect}")
       raise
     end
 

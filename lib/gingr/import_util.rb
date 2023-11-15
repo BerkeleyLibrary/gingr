@@ -3,11 +3,13 @@ require 'find'
 require 'uri'
 require_relative 'config'
 require_relative 'geoserver_publisher'
+require_relative 'logging'
 require_relative 'solr_indexer'
 
 module Gingr
   module ImportUtil
-    include Gingr::Config
+    include Config
+    include Logging
 
     class << self
       def publish_geoservers(geofile_names, options)
@@ -22,7 +24,7 @@ module Gingr
 
           indexer.update(path)
         rescue RSolr::Error::Http => e
-          Config.logger.error("Solr index error: #{e.response}")
+          logger.error("Solr index error: #{e.response}")
           raise
         end
         indexer.commit

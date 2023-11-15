@@ -3,10 +3,12 @@ require 'fileutils'
 require 'pathname'
 require 'zip'
 require_relative 'config'
+require_relative 'logging'
 
 module Gingr
   module DataHandler
-    include Gingr::Config
+    include Config
+    include Logging
 
     @spatial_root = ''
     @geoserver_root = ''
@@ -59,7 +61,7 @@ module Gingr
         FileUtils.rm_r(subdir_path) if File.directory? subdir_path
         subdir_path
       rescue Errno::EACCES
-        Config.logger.error("Permission denied: #{subdir_path}")
+        logger.error("Permission denied: #{subdir_path}")
         raise
       end
 

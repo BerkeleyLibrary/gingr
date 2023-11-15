@@ -46,7 +46,7 @@ RSpec.describe Gingr::SolrIndexer do
       end
 
       it 'should call the update reference field method' do
-        expect(solr_indexer.need_update_reference_urls).to eq(true)
+        expect(solr_indexer.update_reference_urls?).to eq(true)
       end
     end
 
@@ -54,7 +54,7 @@ RSpec.describe Gingr::SolrIndexer do
       let(:solr_indexer) { described_class.new(url) }
       it 'should not call the update reference field method' do
         solr_indexer.update(file_path)
-        expect(solr_indexer.need_update_reference_urls).to eq(false)
+        expect(solr_indexer.update_reference_urls?).to eq(false)
       end
     end
   end
