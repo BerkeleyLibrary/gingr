@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 require 'listen'
 require 'open3'
-require_relative 'config'
+require_relative 'logging'
 
 module Gingr
   class Watcher
-    include Config
+    include Logging
 
     # Only watch for files in WATCHED_DIRECTORIES[:READY] that match this pattern
     WATCH_FILTER = Regexp.compile(/\.zip$/)
@@ -41,7 +41,7 @@ module Gingr
     end
 
     def start
-      Config.logger.info("Monitoring directory for new zipfiles: #{ready_dir}")
+      logger.info("Monitoring directory for new zipfiles: #{ready_dir}")
       listener.start unless listener.processing?
     end
 
@@ -49,12 +49,12 @@ module Gingr
       @listener ||= begin
         Listen.to(ready_dir, only: WATCH_FILTER, force_polling: true) do |_, added, _|
           added.each do |zipfile|
-            Config.logger.info("Processing zipfile: #{zipfile}")
+            logger.info("Processing zipfile: #{zipfile}")
 
             begin
               exec_gingr_all!(zipfile)
             rescue => e
-              Config.logger.error("Error processing #{zipfile}, moving to #{failed_dir}: #{e.inspect}")
+              logger.error("Error processing #{zipfile}, moving to #{failed_dir}: #{e.inspect}")
             end
           end
         end
@@ -64,14 +64,14 @@ module Gingr
     def exec_gingr_all!(zipfile)
       begin
         command = ['gingr', 'all', zipfile, *options]
-        Config.logger.debug("Running command: #{command}")
+        logger.debug("Running command: #{command}")
 
         stdout, stderr, status = Open3.capture3(*command)
         if !status.success?
           raise SubprocessError, "Call to `gingr all` failed: #{status}"
         end
 
-        Config.logger.debug("Processed #{zipfile}, moving to #{processed_dir}")
+        logger.debug("Processed #{zipfile}, moving to #{processed_dir}")
         FileUtils.mv(zipfile, processed_dir)
       rescue => e
         FileUtils.mv(zipfile, failed_dir)

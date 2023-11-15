@@ -5,21 +5,25 @@ require_relative 'config'
 
 module Gingr
   class SolrIndexer
-    include Gingr::Config
+    include Config
 
-    attr_reader :solr, :need_update_reference_urls
+    attr_reader :reference_urls
+    attr_reader :solr
 
     def initialize(url, reference_urls = {})
       @solr = RSolr.connect url:, adapter: :net_http_persistent
       @reference_urls = reference_urls
-      @need_update_reference_urls = !@reference_urls.empty?
+    end
+
+    def update_reference_urls?
+      !@reference_urls.empty?
     end
 
     def update(file_path)
       commit_within = ENV.fetch('SOLR_COMMIT_WITHIN', 5000).to_i
       doc = JSON.parse(File.read(file_path))
       [doc].flatten.each do |record|
-        update_reference_urls!(record) if @need_update_reference_urls
+        update_reference_urls!(record) if update_reference_urls?
         @solr.update params: { commitWithin: commit_within, overwrite: true },
                      data: [record].to_json,
                      headers: { 'Content-Type' => 'application/json' }

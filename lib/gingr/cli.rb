@@ -1,13 +1,12 @@
 # frozen_string_literal: true
 require 'thor'
-require_relative 'config'
 require_relative 'import_util'
 require_relative 'watcher'
 
 module Gingr
   class Cli < Thor
-    include Config
     include ImportUtil
+    include Logging
 
     Thor.check_unknown_options!
 
@@ -47,7 +46,7 @@ module Gingr
       solr_url = options[:solr_url] || ENV.fetch('SOLR_URL', nil)
       ImportUtil.index_solr_from_dir(dir_path, solr_url, reference_urls)
       txt = "all json files under '#{dir_path}' and subdirectories have been indexed to solr #{solr_url} successfully"
-      Config.logger.info(txt)
+      logger.info(txt)
     end
 
     desc 'geoserver', 'publish a giving shapefile or GeoTIFF file to a geoserver'
@@ -63,7 +62,7 @@ module Gingr
       url ||= options[:is_public] ? ENV.fetch('GEOSERVER_URL', nil) : ENV.fetch('GEOSERVER_SECURE_URL', nil)
       publisher = GeoserverPublisher.new(url)
       publisher.update(filename)
-      Config.logger.info("'#{filename}' - published to geoserver #{url} successfully")
+      logger.info("'#{filename}' - published to geoserver #{url} successfully")
     end
 
     desc 'unpack',
@@ -102,7 +101,7 @@ module Gingr
 
       geofile_names = unpacked[:geofile_name_hash]
       ImportUtil.publish_geoservers(geofile_names, options)
-      Config.logger.info("#{zipfile} - all imported")
+      logger.info("#{zipfile} - all imported")
     end
 
     desc 'geoserver_workspace', 'create a workspace in a geoserver'
@@ -116,7 +115,7 @@ module Gingr
       url ||= options[:is_public] ? ENV.fetch('GEOSERVER_URL', nil) : ENV.fetch('GEOSERVER_SECURE_URL', nil)
       publisher = GeoserverPublisher.new(url)
       publisher.create_workspace(name)
-      Config.logger.info("geoserver workspace '#{name}' - created successfully")
+      logger.info("geoserver workspace '#{name}' - created successfully")
     end
 
     def self.exit_on_failure?
