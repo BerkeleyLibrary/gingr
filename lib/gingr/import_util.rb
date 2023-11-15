@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'find'
 require 'uri'
 require_relative 'config'
 require_relative 'geoserver_publisher'
@@ -33,7 +34,7 @@ module Gingr
 
         hash = {}
         Config.reference_urls.each_key do |key|
-          url = options[key] || ENV.fetch(key.upcase)
+          url = options[key] || ENV.fetch(key.to_s.upcase)
           hash[key] = reference_url(url) if url
         end
         hash

@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require_relative '../monkeypatch/geoserver/publish'
+require 'geoserver/publish'
 require 'uri'
 require_relative 'config'
 
@@ -17,8 +17,8 @@ module Gingr
       name = File.basename(filename, '.*')
       filepath = "file:///srv/geofiles/berkeley-#{name}/#{filename}"
       File.extname(filename).downcase == '.shp' ? publish_shapefile(filepath, name) : pulsih_geotiff(filepath, name)
-    rescue Geoserver::Publish::Error
-      Config.logger.error("Publish Geoserver error: #{filename}")
+    rescue Geoserver::Publish::Error => e
+      Config.logger.error("Publish Geoserver error: #{filename} -- #{e.inspect}")
       raise
     end
 

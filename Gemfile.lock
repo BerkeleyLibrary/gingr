@@ -54,6 +54,7 @@ GEM
     faraday-net_http_persistent (2.1.0)
       faraday (~> 2.5)
       net-http-persistent (~> 4.0)
+    ffi (1.16.3)
     geo_combine (0.8.0)
       activesupport
       faraday-net_http_persistent (~> 2.0)
@@ -76,6 +77,9 @@ GEM
       reline (>= 0.3.8)
     json-schema (4.1.1)
       addressable (>= 2.8)
+    listen (3.8.0)
+      rb-fsevent (~> 0.10, >= 0.10.3)
+      rb-inotify (~> 0.9, >= 0.9.10)
     lograge (0.14.0)
       actionpack (>= 4)
       activesupport (>= 4)
@@ -88,6 +92,8 @@ GEM
     mutex_m (0.1.2)
     net-http-persistent (4.0.2)
       connection_pool (~> 2.2)
+    nokogiri (1.15.4-aarch64-linux)
+      racc (~> 1.4)
     nokogiri (1.15.4-x86_64-darwin)
       racc (~> 1.4)
     nokogiri (1.15.4-x86_64-linux)
@@ -123,6 +129,9 @@ GEM
       thor (~> 1.0, >= 1.2.2)
       zeitwerk (~> 2.6)
     rake (13.1.0)
+    rb-fsevent (0.11.2)
+    rb-inotify (0.10.1)
+      ffi (~> 1.0)
     rchardet (1.8.0)
     rdoc (6.5.0)
       psych (>= 4.0.0)
@@ -160,6 +169,7 @@ GEM
     zeitwerk (2.6.12)
 
 PLATFORMS
+  aarch64-linux
   x86_64-darwin-22
   x86_64-linux
 
@@ -168,6 +178,7 @@ DEPENDENCIES
   faraday-net_http_persistent (~> 2.0)
   geo_combine
   geoserver-publish (~> 0.7.0)
+  listen (~> 3.8)
   rsolr
   rspec (~> 3.12)
   rubyzip

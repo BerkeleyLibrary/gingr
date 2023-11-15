@@ -9,21 +9,6 @@ services:
       - tail
       - -f
       - /dev/null
-    develop:
-      watch:
-        - path: .
-          target: /opt/app
-          ignore:
-            - .ruby-version
-            - Dockerfile
-            - Gemfile*
-          action: sync
-        - path: .ruby-version
-          action: rebuild
-        - path: Dockerfile
-          action: rebuild
-        - path: Gemfile*
-          action: rebuild
     environment:
       DOWNLOAD_URL: https://spatial.lib.berkeley.edu/
       GEOSERVER_ROOT: data/geoserver/
@@ -32,6 +17,8 @@ services:
       SOLR_URL: http://solr:8983/solr/geodata-test
       SPATIAL_ROOT: data/spatial/
     restart: no
+    volumes:
+      - ./:/opt/app:delegated
 
   solr:
     command: >
