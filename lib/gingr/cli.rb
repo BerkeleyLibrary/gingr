@@ -23,7 +23,7 @@ module Gingr
     option :geoserver_secure_url
     def watch(root_dir = nil)
       root_dir ||= ENV['GINGR_WATCH_DIRECTORY'] || '/opt/app/data/gingr'
-      watcher = Gingr::Watcher.new(root_dir, *options)
+      watcher = Gingr::Watcher.new(root_dir, options)
       watcher.start!
     end
 

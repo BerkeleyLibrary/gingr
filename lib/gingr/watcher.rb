@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require 'listen'
 require 'open3'
+require 'thor'
 require_relative 'logging'
 
 module Gingr
@@ -23,7 +24,7 @@ module Gingr
     attr_reader :options
     attr_reader :root_dir
 
-    def initialize(root_dir, *options)
+    def initialize(root_dir, options = {})
       # This is the Gingr root directory, not the directory to be watched.
       # Watcher watches the ./ready directory under this one.
       @root_dir = root_dir
@@ -33,6 +34,13 @@ module Gingr
       @options = options
 
       validate_directories!
+    end
+
+    # We receive parsed options from Thor but then have to pass them back to the CLI
+    # un-parsed, so we essentially reverse option-parsing here. Returns an Array so
+    # it's easier to pass to Open3.capture3.
+    def arguments
+      options.to_h { |k, v| [dasherize(k.to_s), v.to_s] }.to_a.flatten
     end
 
     def start!
@@ -63,7 +71,7 @@ module Gingr
 
     def exec_gingr_all!(zipfile)
       begin
-        command = ['gingr', 'all', zipfile, *options]
+        command = ['gingr', 'all', zipfile, *arguments]
         logger.debug("Running command: #{command}")
 
         stdout, stderr, status = Open3.capture3(*command)
@@ -93,6 +101,10 @@ module Gingr
     end
 
     private
+
+    def dasherize(str)
+      (str.length > 1 ? "--" : "-") + str.tr("_", "-")
+    end
 
     def collate_logs(stdout, stderr)
       "#{stdout}\n#{stderr}\n"
