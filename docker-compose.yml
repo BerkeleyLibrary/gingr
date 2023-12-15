@@ -30,6 +30,13 @@ services:
     volumes:
       - ./solr:/opt/solr/server/solr/configsets:ro
 
+  spatial:
+    image: httpd:2.4
+    ports:
+      - 80:80
+    volumes:
+      - ./data/spatial:/usr/local/apache2/htdocs/
+
   geoserver:
     image: containers.lib.berkeley.edu/gis/geoserver/v2.23.2
     ports:
