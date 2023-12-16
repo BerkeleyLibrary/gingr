@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'find'
 require 'uri'
 require_relative 'config'
@@ -50,7 +51,13 @@ module Gingr
       def publish_geoserver_files(files, url, is_public)
         return if files.empty?
 
-        url ||= is_public ? ENV.fetch('GEOSERVER_URL', nil) : ENV.fetch('GEOSERVER_SECURE_URL', nil)
+        url ||= if is_public
+                  ENV.fetch('GEOSERVER_URL',
+                            Config.default_options[:geoserver_url])
+                else
+                  ENV.fetch('GEOSERVER_SECURE_URL',
+                            Config.default_options[:geoserver_secure_url])
+                end
         publisher = GeoserverPublisher.new(url)
         publisher.batch_update(files)
       end
@@ -69,15 +76,12 @@ module Gingr
       end
 
       def reference_url(key, options)
-        new_url = ''
-        if key == 'spatial_url'
-          new_url = options[key] || ENV.fetch(key.to_s.upcase, 'https://spatial.lib.berkeley.edu')
-        else
-          original_url = options[key] || ENV.fetch(key.to_s.upcase)
-          new_url = geo_url(original_url)
-        end
+        default_option_value = Config.default_options[key]
+        new_url = options[key] || ENV.fetch(key.to_s.upcase, default_option_value)
+        new_url = geo_url(new_url) if %w[geoserver_url geoserver_secure_url].include?(key.to_s)
         add_trailing_slash(new_url).to_s
       end
+
     end
   end
 end
