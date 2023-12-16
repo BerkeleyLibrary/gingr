@@ -10,7 +10,7 @@ services:
       - -f
       - /dev/null
     environment:
-      DOWNLOAD_URL: https://spatial.lib.berkeley.edu/
+      SPATIAL_URL: http://spatial
       GEOSERVER_ROOT: data/geoserver/
       GEOSERVER_SECURE_URL: http://admin:geoserver@geoserver_secure:8080/geoserver/rest/
       GEOSERVER_URL: http://admin:geoserver@geoserver:8080/geoserver/rest/
