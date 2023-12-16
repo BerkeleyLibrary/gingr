@@ -76,7 +76,7 @@ module Gingr
           original_url = options[key] || ENV.fetch(key.to_s.upcase)
           new_url = geo_url(original_url)
         end
-        add_trailing_slash(new_url)
+        add_trailing_slash(new_url).to_s
       end
     end
   end
