@@ -12,9 +12,18 @@ module Gingr
     # dirname where all geofile related ingestion files located inside the ingestion zipfile
     @geofile_ingestion_dirname = 'ingestion_files'
 
+    # default options for commands
+    @default_options = {
+      geoserver_secure_url: 'http://admin:geoserver@geoserver_secure:8080/geoserver/rest/',
+      geoserver_url: 'http://admin:geoserver@geoserver:8080/geoserver/rest/',
+      spatial_url: 'https://spatial.lib.berkeley.edu',
+      spatial_root: 'data/spatial/',
+      geoserver_root: 'data/geoserver/',
+      solr_url: 'http://solr:8983/solr/geodata-test'
+    }
+
     class << self
-      attr_accessor :geofile_ingestion_dirname
-      attr_accessor :reference_urls
+      attr_accessor :geofile_ingestion_dirname, :reference_urls, :default_options
 
       include Config
     end

@@ -1,10 +1,13 @@
 # frozen_string_literal: true
+
 require 'thor'
 require_relative 'import_util'
+require_relative 'config'
 require_relative 'watcher'
 
 module Gingr
   class Cli < Thor
+    include Config
     include ImportUtil
     include Logging
 
@@ -33,7 +36,7 @@ module Gingr
     long_desc <<-TEXT, wrapping: false
           examples:\n
           1) ruby bin/import solr tmp/test_public \n
-          2) ruby bin/import solr tmp/test_public  --no-update_reference_field \n
+          2) ruby bin/import solr tmp/test_public  --update-reference-field \n
             (it will update reference urls from 'dct_references_s' field in each geoblacklight json file \n
             with current spatial_url, geoserver_url, geoserver_secure_url)
     TEXT
@@ -44,7 +47,7 @@ module Gingr
     option :solr_url
     def solr(dir_path)
       reference_urls = ImportUtil.get_reference_urls(options)
-      solr_url = options[:solr_url] || ENV.fetch('SOLR_URL', nil)
+      solr_url = options[:solr_url] || ENV.fetch('SOLR_URL', Config.default_options[:solr_url])
       ImportUtil.index_solr_from_dir(dir_path, solr_url, reference_urls)
       txt = "all json files under '#{dir_path}' and subdirectories have been indexed to solr #{solr_url} successfully"
       logger.info(txt)
@@ -60,7 +63,13 @@ module Gingr
     option :is_public, type: :boolean, default: true
     def geoserver(filename)
       url = options[:geoserver_url]
-      url ||= options[:is_public] ? ENV.fetch('GEOSERVER_URL', nil) : ENV.fetch('GEOSERVER_SECURE_URL', nil)
+      url ||= if options[:is_public]
+                ENV.fetch('GEOSERVER_URL', Config.default_options[:geoserver_url])
+              else
+                ENV.fetch(
+                  'GEOSERVER_SECURE_URL', Config.default_options[:geoserver_secure_url]
+                )
+              end
       publisher = GeoserverPublisher.new(url)
       publisher.update(filename)
       logger.info("'#{filename}' - published to geoserver #{url} successfully")
@@ -75,8 +84,10 @@ module Gingr
     option :geoserver_root
     def unpack(zipfile)
       zipfile_path = zipfile == File.basename(zipfile) ? File.join(ImportUtil.root_path, 'import', zipfile) : zipfile
-      DataHandler.spatial_root = options[:spatial_root] || ENV.fetch('SPATIAL_ROOT', nil) || 'data/spatial/'
-      DataHandler.geoserver_root = options[:geoserver_root] || ENV.fetch('GEOSERVER_ROOT', nil) || 'data/geoserver/'
+      DataHandler.spatial_root = options[:spatial_root] || ENV.fetch('SPATIAL_ROOT',
+                                                                     Config.default_options[:spatial_root])
+      DataHandler.geoserver_root = options[:geoserver_root] || ENV.fetch('GEOSERVER_ROOT',
+                                                                         Config.default_options[:geoserver_root])
 
       temp_path = File.join(Dir.pwd, 'tmp')
       DataHandler.extract_and_move(zipfile_path, temp_path)
@@ -114,7 +125,13 @@ module Gingr
     option :is_public, type: :boolean, default: true
     def geoserver_workspace(name)
       url = options[:geoserver_url]
-      url ||= options[:is_public] ? ENV.fetch('GEOSERVER_URL', nil) : ENV.fetch('GEOSERVER_SECURE_URL', nil)
+      url ||= if options[:is_public]
+                ENV.fetch('GEOSERVER_URL', Config.default_options[:geoserver_url])
+              else
+                ENV.fetch(
+                  'GEOSERVER_SECURE_URL', Config.default_options[:geoserver_secure_url]
+                )
+              end
       publisher = GeoserverPublisher.new(url)
       publisher.create_workspace(name)
       logger.info("geoserver workspace '#{name}' - created successfully")
