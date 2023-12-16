@@ -75,8 +75,8 @@ module Gingr
     option :geoserver_root
     def unpack(zipfile)
       zipfile_path = zipfile == File.basename(zipfile) ? File.join(ImportUtil.root_path, 'import', zipfile) : zipfile
-      DataHandler.spatial_root = options[:spatial_root] || ENV.fetch('SPATIAL_ROOT', nil) || 'data/spatial/'
-      DataHandler.geoserver_root = options[:geoserver_root] || ENV.fetch('GEOSERVER_ROOT', nil) || 'data/geoserver/'
+      DataHandler.spatial_root = options[:spatial_root] || ENV.fetch('SPATIAL_ROOT', 'data/spatial/') 
+      DataHandler.geoserver_root = options[:geoserver_root] || ENV.fetch('GEOSERVER_ROOT', 'data/spatial/')
 
       temp_path = File.join(Dir.pwd, 'tmp')
       DataHandler.extract_and_move(zipfile_path, temp_path)

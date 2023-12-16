@@ -65,13 +65,13 @@ module Gingr
       def add_trailing_slash(url)
         original_uri = URI.parse(url)
         original_uri.path += '/' unless original_uri.path.end_with?('/')
-        original_uri.to_s
+        original_uri
       end
 
       def reference_url(key, options)
         new_url = ''
         if key == 'spatial_url'
-          new_url = options[key] || ENV.fetch(key.to_s.upcase, nil) || 'https://spatial.lib.berkeley.edu'
+          new_url = options[key] || ENV.fetch(key.to_s.upcase, 'https://spatial.lib.berkeley.edu')
         else
           original_url = options[key] || ENV.fetch(key.to_s.upcase)
           new_url = geo_url(original_url)

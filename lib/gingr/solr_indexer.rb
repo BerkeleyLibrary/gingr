@@ -40,7 +40,7 @@ module Gingr
       references = record['dct_references_s']
 
       Config.reference_urls.each do |name, from_url|
-        to_url = @reference_urls[name]
+        to_url = @reference_urls[name].to_s
         references = references.gsub(from_url, to_url) if to_url
       end
       record['dct_references_s'] = references
