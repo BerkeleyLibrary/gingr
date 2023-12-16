@@ -36,8 +36,7 @@ module Gingr
 
         hash = {}
         Config.reference_urls.each_key do |key|
-          url = options[key] || ENV.fetch(key.to_s.upcase)
-          hash[key] = reference_url(url) if url
+          hash[key] = reference_url(key, options)
         end
         hash
       end
@@ -56,11 +55,28 @@ module Gingr
         publisher.batch_update(files)
       end
 
-      def reference_url(url)
+      def geo_url(url)
         uri = URI(url)
         uri_port = uri.port.to_s
         port = uri_port.start_with?('80') ? ":#{uri_port}" : ''
         "#{uri.scheme}://#{uri.host}#{port}"
+      end
+
+      def add_trailing_slash(url)
+        original_uri = URI.parse(url)
+        original_uri.path += '/' unless original_uri.path.end_with?('/')
+        original_uri.to_s
+      end
+
+      def reference_url(key, options)
+        new_url = ''
+        if key == 'spatial_url'
+          new_url = options[key] || ENV.fetch(key.to_s.upcase, nil) || 'https://spatial.lib.berkeley.edu'
+        else
+          original_url = options[key] || ENV.fetch(key.to_s.upcase)
+          new_url = geo_url(original_url)
+        end
+        add_trailing_slash(new_url)
       end
     end
   end

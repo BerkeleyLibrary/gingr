@@ -18,6 +18,7 @@ module Gingr
     option :solr_url
     option :update_reference_field, type: :boolean, default: false
     option :spatial_root
+    option :spatial_url
     option :geoserver_root
     option :geoserver_url
     option :geoserver_secure_url
@@ -34,9 +35,9 @@ module Gingr
           1) ruby bin/import solr tmp/test_public \n
           2) ruby bin/import solr tmp/test_public  --no-update_reference_field \n
             (it will update reference urls from 'dct_references_s' field in each geoblacklight json file \n
-            with current download_url, geoserver_url, geoserver_secure_url)
+            with current spatial_url, geoserver_url, geoserver_secure_url)
     TEXT
-    option :download_url
+    option :spatial_url
     option :geoserver_url
     option :geoserver_secure_url
     option :update_reference_field, type: :boolean, default: false
@@ -74,8 +75,8 @@ module Gingr
     option :geoserver_root
     def unpack(zipfile)
       zipfile_path = zipfile == File.basename(zipfile) ? File.join(ImportUtil.root_path, 'import', zipfile) : zipfile
-      DataHandler.spatial_root = options[:spatial_root] || ENV.fetch('SPATIAL_ROOT', nil)
-      DataHandler.geoserver_root = options[:geoserver_root] || ENV.fetch('GEOSERVER_ROOT', nil)
+      DataHandler.spatial_root = options[:spatial_root] || ENV.fetch('SPATIAL_ROOT', nil) || 'data/spatial/'
+      DataHandler.geoserver_root = options[:geoserver_root] || ENV.fetch('GEOSERVER_ROOT', nil) || 'data/geoserver/'
 
       temp_path = File.join(Dir.pwd, 'tmp')
       DataHandler.extract_and_move(zipfile_path, temp_path)
@@ -92,6 +93,7 @@ module Gingr
     option :solr_url
     option :update_reference_field, type: :boolean, default: false
     option :spatial_root
+    option :spatial_url
     option :geoserver_root
     option :geoserver_url
     option :geoserver_secure_url
