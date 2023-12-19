@@ -19,7 +19,7 @@ module Gingr
     def update(filename)
       name = File.basename(filename, '.*')
       filepath = "file:///srv/geofiles/berkeley-#{name}/#{filename}"
-      File.extname(filename).downcase == '.shp' ? publish_shapefile(filepath, name) : pulsih_geotiff(filepath, name)
+      File.extname(filename).downcase == '.shp' ? publish_shapefile(filepath, name) : publish_geotiff(filepath, name)
     rescue Geoserver::Publish::Error => e
       logger.error("Publish Geoserver error: #{filename} -- #{e.inspect}")
       raise
@@ -30,7 +30,7 @@ module Gingr
                                    id: name, title: name)
     end
 
-    def pulsih_geotiff(filepath, name)
+    def publish_geotiff(filepath, name)
       Geoserver::Publish.geotiff(connection: @conn, workspace_name: 'UCB', file_path: filepath, id: name,
                                  title: name)
     end
