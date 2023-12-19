@@ -2,6 +2,7 @@ source 'https://rubygems.org'
 
 ruby File.read('.ruby-version')
 
+gem "berkeley_library-docker", "~> 0.2.0"
 gem 'berkeley_library-logging', '~> 0.2'
 gem 'faraday-net_http_persistent', '~> 2.0'
 gem 'geo_combine'

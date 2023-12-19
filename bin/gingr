@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby
-require_relative '../lib/gingr'
+require 'berkeley_library/docker'
+BerkeleyLibrary::Docker::Secret.load_secrets!
 
+require_relative '../lib/gingr'
 Gingr::Cli.start(ARGV)
