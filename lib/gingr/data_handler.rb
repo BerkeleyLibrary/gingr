@@ -32,6 +32,9 @@ module Gingr
           end
         end
         extracted_to_path
+      rescue Exception => e
+        Logging.logger.error("Failed to extract #{zip_file}: #{e.message}")
+        raise
       end
 
       def move_files(from_dir_path)
@@ -61,7 +64,7 @@ module Gingr
         FileUtils.rm_r(subdir_path) if File.directory? subdir_path
         subdir_path
       rescue Errno::EACCES
-        logger.error("Permission denied: #{subdir_path}")
+        Logging.logger.error("Permission denied: #{subdir_path}")
         raise
       end
 
