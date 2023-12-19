@@ -30,6 +30,7 @@ GEM
       public_suffix (>= 2.0.2, < 6.0)
     amazing_print (1.5.0)
     base64 (0.1.1)
+    berkeley_library-docker (0.2.0)
     berkeley_library-logging (0.2.7)
       activesupport (>= 6)
       amazing_print (~> 1.1)
@@ -174,6 +175,7 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
+  berkeley_library-docker (~> 0.2.0)
   berkeley_library-logging (~> 0.2)
   faraday-net_http_persistent (~> 2.0)
   geo_combine

@@ -1,4 +1,7 @@
 # frozen_string_literal: true
+require 'berkeley_library/docker'
+BerkeleyLibrary::Docker::Secret.load_secrets!
+
 $LOAD_PATH.unshift(File.expand_path('../lib', __FILE__))
 require 'gingr'
 
