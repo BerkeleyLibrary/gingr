@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 require 'berkeley_library/logging'
 
+$stdout.sync = true
+
 module Gingr
   module Logging
     class << self
