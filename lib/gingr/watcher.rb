@@ -57,12 +57,10 @@ module Gingr
       @listener ||= begin
         Listen.to(ready_dir, only: WATCH_FILTER, force_polling: true) do |_, added, _|
           added.each do |zipfile|
-            logger.info("Processing zipfile: #{zipfile}")
-
             begin
               exec_gingr_all!(zipfile)
             rescue => e
-              logger.error("Error processing #{zipfile}, moving to #{failed_dir}: #{e.inspect}")
+              logger.debug("Continuing to watch despite error: #{e}")
             end
           end
         end
@@ -70,21 +68,26 @@ module Gingr
     end
 
     def exec_gingr_all!(zipfile)
-      begin
-        command = ['gingr', 'all', zipfile, *arguments]
-        logger.debug("Running command: #{command}")
+      command = ['gingr', 'all', zipfile, *arguments]
 
-        stdout, stderr, status = Open3.capture3(*command)
-        if !status.success?
-          raise SubprocessError, "Call to `gingr all` failed: #{status}"
-        end
+      logger.info("Processing zipfile: #{zipfile}")
+      logger.debug("Running command: #{command}")
+      logs, status = Open3.capture2e(*command)
 
-        logger.debug("Processed #{zipfile}, moving to #{processed_dir}")
-        FileUtils.mv(zipfile, processed_dir)
-      rescue => e
+      if !status.success?
+        logger.error("Error processing #{zipfile}, moving to #{processed_dir}")
+        logger.debug("Execute logs: #{logs}")
+
+        write_logs(logs, zipfile, failed_dir)
         FileUtils.mv(zipfile, failed_dir)
-        File.write(error_log_for(zipfile), collate_logs(stdout, stderr))
-        raise
+
+        raise SubprocessError, "Call to `gingr all` failed: #{status}"
+      else
+        logger.info("Processed #{zipfile}, moving to #{processed_dir}")
+        logger.debug("Execute logs: #{logs}")
+
+        write_logs(logs, zipfile, processed_dir)
+        FileUtils.mv(zipfile, processed_dir)
       end
     end
 
@@ -106,12 +109,9 @@ module Gingr
       (str.length > 1 ? "--" : "-") + str.tr("_", "-")
     end
 
-    def collate_logs(stdout, stderr)
-      "#{stdout}\n#{stderr}\n"
-    end
-
-    def error_log_for(zipfile)
-      File.join(failed_dir, "#{File.basename(zipfile, '.*')}.log")
+    def write_logs(logs, zipfile, logdir)
+      logfile = File.join(logdir, "#{File.basename(zipfile, '.*')}.log")
+      File.write(logfile, logs)
     end
 
     def validate_directories!

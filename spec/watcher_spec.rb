@@ -57,7 +57,7 @@ RSpec.describe Gingr::Watcher do
       end
 
       it 'passes arguments to `gingr all`' do
-        expect(Open3).to receive(:capture3).with(*%w(
+        expect(Open3).to receive(:capture2e).with(*%w(
           gingr all /opt/app/data/gingr/ready/vector.zip
             --geoserver-root /opt/app/data/geoserver
             --geoserver-secure-url http://admin:geoserver@geoserver-secure:8080/geoserver/rest/
@@ -65,7 +65,7 @@ RSpec.describe Gingr::Watcher do
             --solr-url http://solr:8983/solr/geodata-test
             --spatial-root /opt/app/data/spatial
             --update-reference-field true
-        )).and_return(['', '', MockStatus.successful])
+        )).and_return(['', MockStatus.successful])
 
         copy_zipfile_to_ready('vector.zip')
         watcher.exec_gingr_all!('/opt/app/data/gingr/ready/vector.zip')
@@ -73,7 +73,7 @@ RSpec.describe Gingr::Watcher do
     end
 
     it 'moves successfully processed files to the processed directory' do
-      expect(Open3).to receive(:capture3).and_return(['', '', MockStatus.successful])
+      expect(Open3).to receive(:capture2e).and_return(['', MockStatus.successful])
 
       copy_zipfile_to_ready('vector.zip')
       watcher.exec_gingr_all!('/opt/app/data/gingr/ready/vector.zip')
@@ -84,7 +84,7 @@ RSpec.describe Gingr::Watcher do
       watcher.start
 
       (1..4).each do |i|
-        exp = expect(Open3).to receive(:capture3).with(*%W(
+        exp = expect(Open3).to receive(:capture2e).with(*%W(
           gingr all /opt/app/data/gingr/ready/vector#{i}.zip
             --geoserver-root /opt/app/data/geoserver
             --geoserver-secure-url http://admin:geoserver@geoserver-secure:8080/geoserver/rest/
@@ -97,7 +97,7 @@ RSpec.describe Gingr::Watcher do
         if i.odd?
           exp.and_raise(Gingr::Watcher::SubprocessError)
         else
-          exp.and_return(['', '', MockStatus.successful])
+          exp.and_return(['', MockStatus.successful])
         end
 
         copy_zipfile_to_ready('vector.zip', "vector#{i}.zip")
@@ -110,7 +110,7 @@ RSpec.describe Gingr::Watcher do
     let(:options) { { unexpected_argument: true } }
 
     it 'moves failed files and the logs to the failed directory' do
-      expect(Open3).to receive(:capture3).and_return(['', 'Unknown switches', MockStatus.failed])
+      expect(Open3).to receive(:capture2e).and_return(['Unknown switches', MockStatus.failed])
       copy_zipfile_to_ready('vector.zip')
 
       expect { watcher.exec_gingr_all!('/opt/app/data/gingr/ready/vector.zip') }.to raise_error(Gingr::Watcher::SubprocessError)
