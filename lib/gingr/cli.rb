@@ -88,9 +88,8 @@ module Gingr
                                                                      Config.default_options[:spatial_root])
       DataHandler.geoserver_root = options[:geoserver_root] || ENV.fetch('GEOSERVER_ROOT',
                                                                          Config.default_options[:geoserver_root])
-
-      temp_path = File.join(Dir.pwd, 'tmp')
-      DataHandler.extract_and_move(zipfile_path, temp_path)
+      DataHandler.processing_root = ENV.fetch('PROCESSING_ROOT', Config.default_options[:processing_root])
+      DataHandler.extract_and_move(zipfile_path)
     end
 
     desc 'all',

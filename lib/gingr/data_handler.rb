@@ -12,22 +12,23 @@ module Gingr
 
     @spatial_root = ''
     @geoserver_root = ''
+    @processing_root = ''
 
     class << self
-      attr_accessor :spatial_root, :geoserver_root
+      attr_accessor :spatial_root, :geoserver_root, :processing_root
 
-      def extract_and_move(zip_file, to_dir_path)
-        extract_to_path = extract_zipfile(zip_file, to_dir_path)
+      def extract_and_move(zip_file)
+        extract_to_path = extract_zipfile(zip_file)
 
         geofile_ingestion_dir_path = move_files(extract_to_path)
         { extract_to_path:, geofile_name_hash: get_geofile_name_hash(geofile_ingestion_dir_path) }
       end
 
-      def extract_zipfile(zip_file, to_dir_path)
-        extracted_to_path = clr_subdirectory(zip_file, to_dir_path)
+      def extract_zipfile(zip_file, to_dir = @processing_root)
+        extracted_to_path = clr_subdirectory(zip_file)
         Zip::File.open(zip_file) do |zip|
           zip.each do |entry|
-            entry_path = File.join(to_dir_path, entry.name)
+            entry_path = File.join(to_dir, entry.name)
             entry.extract(entry_path) { true }
           end
         end
@@ -55,9 +56,9 @@ module Gingr
       end
 
       # remove the subdirectory if it exists
-      def clr_subdirectory(zip_file, to_dir_path)
+      def clr_subdirectory(zip_file)
         subdir_name = File.basename(zip_file, '.*')
-        subdir_path = File.join(to_dir_path, subdir_name)
+        subdir_path = File.join(@processing_root, subdir_name)
         FileUtils.rm_r(subdir_path) if File.directory? subdir_path
         subdir_path
       rescue Errno::EACCES

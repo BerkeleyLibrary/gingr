@@ -19,6 +19,7 @@ module Gingr
       spatial_url: 'https://spatial.lib.berkeley.edu',
       spatial_root: 'data/spatial/',
       geoserver_root: 'data/geoserver/',
+      processing_root: 'data/processing/',
       solr_url: 'http://solr:8983/solr/geodata-test'
     }
 
