@@ -12,6 +12,8 @@
 /data/gingr/ready/*
 /data/gingr/processed/*
 /data/gingr/failed/*
+/data/gingr/processing/*
+
 
 /solr/geodata-test/data
 /solr/geodata-test/data
