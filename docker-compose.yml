@@ -16,6 +16,7 @@ services:
       GEOSERVER_URL: http://admin:geoserver@geoserver:8080/geoserver/rest/
       SOLR_URL: http://solr:8983/solr/geodata-test
       SPATIAL_ROOT: data/spatial/
+      PROCESSING_ROOT: data/processing/
     restart: no
     volumes:
       - ./:/opt/app:delegated
