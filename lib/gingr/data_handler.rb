@@ -8,13 +8,13 @@ require_relative 'logging'
 module Gingr
   module DataHandler
     include Config
-    include Logging
-
+  
     @spatial_root = ''
     @geoserver_root = ''
     @processing_root = ''
 
     class << self
+      include Logging
       attr_accessor :spatial_root, :geoserver_root, :processing_root
 
       def extract_and_move(zip_file)
@@ -33,6 +33,9 @@ module Gingr
           end
         end
         extracted_to_path
+      rescue Exception => e
+        logger.error("Failed to extract #{zip_file}: #{e.message}")
+        raise
       end
 
       def move_files(from_dir_path)
