@@ -26,7 +26,6 @@ module Gingr
     option :geoserver_url
     option :geoserver_secure_url
     def watch(root_dir = nil)
-      root_dir ||= ENV['GINGR_WATCH_DIRECTORY'] || '/opt/app/data/gingr'
       watcher = Gingr::Watcher.new(root_dir, options)
       watcher.start!
     end
@@ -45,12 +44,10 @@ module Gingr
     option :geoserver_secure_url
     option :update_reference_field, type: :boolean, default: false
     option :solr_url
-    def solr(dir_path)
+    def solr(directory)
       reference_urls = ImportUtil.get_reference_urls(options)
-      solr_url = options[:solr_url] || ENV.fetch('SOLR_URL', Config.default_options[:solr_url])
-      ImportUtil.index_solr_from_dir(dir_path, solr_url, reference_urls)
-      txt = "all json files under '#{dir_path}' and subdirectories have been indexed to solr #{solr_url} successfully"
-      logger.info(txt)
+      solr = Gingr::SolrIndexer.new(options[:solr_url], reference_urls)
+      solr.index_directory(directory)
     end
 
     desc 'geoserver', 'publish a giving shapefile or GeoTIFF file to a geoserver'

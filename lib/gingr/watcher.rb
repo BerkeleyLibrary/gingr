@@ -24,10 +24,10 @@ module Gingr
     attr_reader :options
     attr_reader :root_dir
 
-    def initialize(root_dir, options = {})
+    def initialize(root_dir = nil, options = {})
       # This is the Gingr root directory, not the directory to be watched.
       # Watcher watches the ./ready directory under this one.
-      @root_dir = root_dir
+      @root_dir = root_dir || ENV['GINGR_WATCH_DIRECTORY'] || '/opt/app/data/gingr'
 
       # Options are passed as-is to `gingr all`, so they should match the
       # arguments you'd otherwise pass to that command

@@ -18,28 +18,14 @@ module Gingr
         publish_geoserver_files(geofile_names[:ucb], options[:geoserver_secure_url], false)
       end
 
-      def index_solr_from_dir(directory_path, url, reference_urls)
-        indexer = SolrIndexer.new(url, reference_urls)
-        Find.find(directory_path) do |path|
-          next unless File.extname(path).downcase == '.json'
-
-          indexer.update(path)
-        rescue RSolr::Error::Http => e
-          logger.error("Solr index error: #{e.response}")
-          raise
-        end
-        indexer.commit
-      end
-
       def get_reference_urls(options)
-        update_reference_field = options[:update_reference_field]
-        return {} unless update_reference_field
-
-        hash = {}
-        Config.reference_urls.each_key do |key|
-          hash[key] = reference_url(key, options)
+        {}.tap do |refs|
+          if options[:update_reference_field]
+            Config.reference_urls.each_key do |key|
+              refs[key] = reference_url(key, options)
+            end
+          end
         end
-        hash
       end
 
       def root_path
