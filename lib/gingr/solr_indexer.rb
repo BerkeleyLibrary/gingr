@@ -33,7 +33,7 @@ module Gingr
     def update_reference_urls!(doc)
       Gingr::Config.reference_urls.each do |name, from_url|
         to_url = @reference_urls[name]
-        doc['dct_references_s'].gsub!(from_url, to_url) if to_url
+        doc['dct_references_s'].gsub!(from_url, to_url) if doc.key?('dct_references_s') && to_url
       end
     end
 
