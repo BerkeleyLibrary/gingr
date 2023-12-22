@@ -6,20 +6,26 @@ require_relative 'config'
 
 module Gingr
   class SolrIndexer
-    include Config
+    include Logging
 
     attr_accessor :reference_urls
     attr_accessor :solr
 
-    def initialize(solr = nil, reference_urls = nil)
-      solr ||= ENV['SOLR_URL'] || Gingr::Config.default_options[:solr_url]
-      solr = RSolr.connect url: solr, adapter: :net_http_persistent if solr.kind_of? String
-      @solr = solr
-      @reference_urls = reference_urls || {}
+    def initialize(connection = nil, refurls = nil)
+      connection ||= Gingr::Config.getopt(:solr_url)
+      connection = RSolr.connect url: connection, adapter: :net_http_persistent if connection.kind_of? String
+      @solr = connection
+
+      # Strip HTTP Basic Auth
+      @reference_urls = (refurls || {}).transform_values do |url|
+        URI(url).tap { |uri| uri.password = uri.user = nil }.to_s
+      end
     end
 
     def add(doc)
       doc = JSON.load_file(doc) if doc.kind_of? String
+
+      logger.debug("Indexing document: #{doc['id']}")
       update_reference_urls!(doc)
       @solr.add doc
     end
@@ -33,7 +39,11 @@ module Gingr
     def update_reference_urls!(doc)
       Gingr::Config.reference_urls.each do |name, from_url|
         to_url = @reference_urls[name]
-        doc['dct_references_s'].gsub!(from_url, to_url) if doc.key?('dct_references_s') && to_url
+
+        if doc.key?('dct_references_s') && to_url
+          logger.debug("Updating dct_references_s from #{from_url} to #{to_url}")
+          doc['dct_references_s'].gsub!(from_url, to_url)
+        end
       end
     end
 

@@ -13,13 +13,19 @@ module Gingr
 
     Thor.check_unknown_options!
 
+    class << self
+      def exit_on_failure?
+        true
+      end
+    end
+
     desc 'watch', 'Watches a Gingr directory for files ready to be processed'
     long_desc <<-TEXT, wrapping: false
     EXAMPLES
       gingr watch data/gingr --solr-url=https://foo:bar@solr.lib.berkeley.edu:8983/solr/geodata ...
     TEXT
     option :solr_url
-    option :update_reference_field, type: :boolean, default: false
+    option :update_reference_field, type: :boolean, default: true
     option :spatial_root
     option :spatial_url
     option :geoserver_root
@@ -42,7 +48,7 @@ module Gingr
     option :spatial_url
     option :geoserver_url
     option :geoserver_secure_url
-    option :update_reference_field, type: :boolean, default: false
+    option :update_reference_field, type: :boolean, default: true
     option :solr_url
     def solr(directory)
       reference_urls = ImportUtil.get_reference_urls(options)
@@ -50,7 +56,7 @@ module Gingr
       solr.index_directory(directory)
     end
 
-    desc 'geoserver', 'publish a giving shapefile or GeoTIFF file to a geoserver'
+    desc 'geoserver', 'publish a given shapefile or GeoTIFF file to a geoserver'
     long_desc <<-TEXT, wrapping: false
          examples: \n
          1) ruby bin/import geoserver fk4cr7f93g.shp \n
@@ -60,20 +66,13 @@ module Gingr
     option :is_public, type: :boolean, default: true
     def geoserver(filename)
       url = options[:geoserver_url]
-      url ||= if options[:is_public]
-                ENV.fetch('GEOSERVER_URL', Config.default_options[:geoserver_url])
-              else
-                ENV.fetch(
-                  'GEOSERVER_SECURE_URL', Config.default_options[:geoserver_secure_url]
-                )
-              end
-      publisher = GeoserverPublisher.new(url)
-      publisher.update(filename)
-      logger.info("'#{filename}' - published to geoserver #{url} successfully")
+      default = options[:is_public] ? :geoserver_url : :geoserver_secure_url
+      publisher = GeoserverPublisher.new(url, default:)
+      publisher.publish(filename)
     end
 
     desc 'unpack',
-         'unpack a giving zip file, move shapefiles and GeoTIFF files to geoserver_root, other files to spatial_root'
+         'unpack a given zip file, move shapefiles and GeoTIFF files to geoserver_root, other files to spatial_root'
     long_desc <<-TEXT, wrapping: false
          * When giving a zip file without path, it will look for a zip file under /app/import/
     TEXT
@@ -92,7 +91,7 @@ module Gingr
     end
 
     desc 'all',
-         'unpack a giving zip file, move files, index json files to solr and publish geofiles to geoservers'
+         'unpack a given zip file, move files, index json files to solr and publish geofiles to geoservers'
     long_desc <<-TEXT, wrapping: false
           1) move all geofiles to geoserver_root \n
           2) move all data.zip, ISO19139.xml and document files to spatial_root \n
@@ -111,7 +110,8 @@ module Gingr
       solr(unpacked[:extract_to_path])
 
       geofile_names = unpacked[:geofile_name_hash]
-      ImportUtil.publish_geoservers(geofile_names, options)
+      geoserver_urls = options.slice(:geoserver_url, :geoserver_secure_url).transform_keys(&:to_sym)
+      Gingr::GeoserverPublisher.publish_inventory(geofile_names, **geoserver_urls)
       logger.info("#{zipfile} - all imported")
     end
 
@@ -121,22 +121,10 @@ module Gingr
     LONGDESC
     option :geoserver_url
     option :is_public, type: :boolean, default: true
-    def geoserver_workspace(name)
-      url = options[:geoserver_url]
-      url ||= if options[:is_public]
-                ENV.fetch('GEOSERVER_URL', Config.default_options[:geoserver_url])
-              else
-                ENV.fetch(
-                  'GEOSERVER_SECURE_URL', Config.default_options[:geoserver_secure_url]
-                )
-              end
-      publisher = GeoserverPublisher.new(url)
-      publisher.create_workspace(name)
-      logger.info("geoserver workspace '#{name}' - created successfully")
-    end
-
-    def self.exit_on_failure?
-      true
+    def geoserver_workspace(workspace_name = nil)
+      default = options[:is_public] ? :geoserver_url : :geoserver_secure_url
+      publisher = GeoserverPublisher.new(options[:geoserver_url], default:, workspace_name:)
+      publisher.create_workspace
     end
   end
 end

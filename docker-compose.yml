@@ -10,12 +10,13 @@ services:
       - -f
       - /dev/null
     environment:
-      SPATIAL_URL: http://spatial
+      CI: "${CI:-false}" # set to 'true' to mimic GitHub Actions
       GEOSERVER_ROOT: data/geoserver/
-      GEOSERVER_SECURE_URL: http://admin:geoserver@geoserver_secure:8080/geoserver/rest/
+      GEOSERVER_SECURE_URL: http://admin:geoserver@geoserver-secure:8080/geoserver/rest/
       GEOSERVER_URL: http://admin:geoserver@geoserver:8080/geoserver/rest/
       SOLR_URL: http://solr:8983/solr/geodata-test
       SPATIAL_ROOT: data/spatial/
+      SPATIAL_URL: http://spatial
     restart: no
     volumes:
       - ./:/opt/app:delegated
@@ -35,7 +36,7 @@ services:
     ports:
       - 80:80
     volumes:
-      - ./data/spatial:/usr/local/apache2/htdocs/
+      - ./data/spatial:/usr/local/apache2/htdocs/:ro
 
   geoserver:
     image: containers.lib.berkeley.edu/gis/geoserver/v2.23.2
@@ -44,7 +45,7 @@ services:
     volumes:
       - ./data/geoserver/public:/srv/geofiles:delegated
 
-  geoserver_secure:
+  geoserver-secure:
     image: containers.lib.berkeley.edu/gis/geoserver/v2.23.2
     ports:
       - 8081:8080
