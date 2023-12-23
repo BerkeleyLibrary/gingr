@@ -48,7 +48,7 @@ jobs:
         run: docker compose exec solr wait-for-solr.sh
 
       - name: Run tests
-        run: docker compose run --rm app rake
+        run: docker compose exec --env CI=$CI app rake
 
       - name: Log in to the Container registry
         uses: docker/login-action@v2
