@@ -15,6 +15,8 @@ module Gingr
     @processing_root = ''
 
     class << self
+      include Logging
+
       attr_accessor :spatial_root, :geoserver_root, :processing_root
 
       def extract_and_move(zip_file)

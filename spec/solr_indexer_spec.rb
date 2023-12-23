@@ -32,6 +32,7 @@ RSpec.describe Gingr::SolrIndexer do
 
   describe '#update_reference_urls!' do
     let(:document) { JSON.load_file('spec/fixture/jsonfile/berkeley_public_pdf.json') }
+    let(:references) { JSON.parse(document['dct_references_s']) }
 
     it 'does nothing if reference_urls are nil' do
       indexer = Gingr::SolrIndexer.new
@@ -39,10 +40,11 @@ RSpec.describe Gingr::SolrIndexer do
     end
 
     it 'updates references if configured to do so' do
-      refs = { geoserver_url: 'http://geoserver-at-init/' }
+      refs = { geoserver_url: 'http://user:pass@geoserver-at-init/geoserver/' }
       indexer = Gingr::SolrIndexer.new(nil, refs)
       expect { indexer.update_reference_urls! document }.to change { document }
-      expect(document['dct_references_s']).to match 'http://geoserver-at-init/'
+      expect(references['http://www.opengis.net/def/serviceType/ogc/wfs']).to eq 'http://geoserver-at-init/geoserver/wfs'
+      expect(references['http://www.opengis.net/def/serviceType/ogc/wms']).to eq 'http://geoserver-at-init/geoserver/wms'
     end
   end
 
