@@ -69,7 +69,7 @@ module Gingr
     def publish(filename)
       id = File.basename(filename, '.*')
       file_path = remote_filepath(id, filename)
-      if File.extname(filename).casecmp('.shp').zero?
+      if File.extname(filename).casecmp?('.shp')
         publish_shapefile(file_path, id)
       else
         publish_geotiff(file_path, id)
