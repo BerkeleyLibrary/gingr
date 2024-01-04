@@ -34,6 +34,7 @@ module Gingr
       Find.find(directory)
         .select(&method(:json_file?))
         .each(&method(:add))
+      @solr.commit
     end
 
     def update_reference_urls!(doc)

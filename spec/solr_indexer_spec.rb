@@ -50,15 +50,14 @@ RSpec.describe Gingr::SolrIndexer do
 
   describe '#index_directory' do
     it 'adds all .json files to solr' do
-      files = ['foo.xml', 'bar.json', 'baz.json'].shuffle
-      expect(Find).to receive(:find).with('directory').and_return files
       Gingr::SolrIndexer.any_instance.stub(:add)
 
-      indexer = Gingr::SolrIndexer.new
-      indexer.index_directory('directory')
-      expect(indexer).to have_received(:add).with('bar.json')
-      expect(indexer).to have_received(:add).with('baz.json')
-      expect(indexer).not_to have_received(:add).with('foo.xml')
+      solr = spy(RSolr::Client)
+      indexer = Gingr::SolrIndexer.new(solr)
+      indexer.index_directory('spec/fixture/jsonfile')
+      expect(indexer).to have_received(:add).with 'spec/fixture/jsonfile/actual-point.json'
+      expect(indexer).to have_received(:add).with 'spec/fixture/jsonfile/berkeley_public_pdf.json'
+      expect(solr).to have_received(:commit).once
     end
   end
 
