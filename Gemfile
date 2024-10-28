@@ -7,7 +7,7 @@ gem 'faraday-net_http_persistent', '~> 2.0'
 gem 'geo_combine'
 gem 'geoserver-publish', '~> 0.7.0'
 gem 'rsolr'
-gem 'rubyzip'
+gem 'rubyzip', '3.0.0.alpha'
 gem "berkeley_library-docker", "~> 0.2.0"
 gem "listen", "~> 3.8"
 gem 'uri'

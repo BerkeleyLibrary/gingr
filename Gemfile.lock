@@ -162,7 +162,7 @@ GEM
       rspec-support (~> 3.12.0)
     rspec-support (3.12.1)
     ruby2_keywords (0.0.5)
-    rubyzip (2.3.2)
+    rubyzip (3.0.0.alpha)
     sanitize (6.1.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
@@ -189,7 +189,7 @@ DEPENDENCIES
   pry (~> 0.14.2)
   rsolr
   rspec (~> 3.12)
-  rubyzip
+  rubyzip (= 3.0.0.alpha)
   uri
 
 RUBY VERSION

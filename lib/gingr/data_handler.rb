@@ -20,29 +20,45 @@ module Gingr
       attr_accessor :spatial_root, :geoserver_root, :processing_root
 
       def extract_and_move(zip_file)
-        extract_to_path = extract_zipfile(zip_file)
+        extract_to_path = perform_extraction(zip_file)
+        geofile_ingestion_path = organize_files_for_ingestion(extract_to_path)
+        geofile_name_hash = geofile_access_hash(geofile_ingestion_path)
+        { extract_to_path:, geofile_name_hash: }
+      end
 
-        geofile_ingestion_dir_path = move_files(extract_to_path)
-        { extract_to_path:, geofile_name_hash: get_geofile_name_hash(geofile_ingestion_dir_path) }
+      private
+
+      def perform_extraction(zip_file)
+        extract_to_path = directory_path(zip_file)
+        puts extract_to_path
+        clr_directory(extract_to_path)
+        extract_zipfile(zip_file)
+        extract_to_path
+      end
+
+      def organize_files_for_ingestion(extract_to_path)
+        geofile_ingestion_path = File.join(extract_to_path, Config.geofile_ingestion_dirname)
+        move_files_to_ingestion_path(geofile_ingestion_path)
+        geofile_ingestion_path
       end
 
       def extract_zipfile(zip_file, to_dir = @processing_root)
-        extracted_to_path = clr_subdirectory(zip_file)
         Zip::File.open(zip_file) do |zip|
           zip.each do |entry|
-            entry_path = File.join(to_dir, entry.name)
-            entry.extract(entry_path) { true }
+            entry.extract(destination_directory: to_dir) { true }
           end
         end
-        extracted_to_path
+      rescue StandardError => e
+        logger.error "An unexpected error occurred during unzip #{zip_file}: #{e.message}"
+        raise
       end
 
-      def move_files(from_dir_path)
-        geofile_ingestion_dir_path = File.join(from_dir_path, Config.geofile_ingestion_dirname)
-        subdirectory_list(geofile_ingestion_dir_path).each do |subdirectory_path|
+      def move_files_to_ingestion_path(geofile_ingestion_path)
+        subdirectory_list(geofile_ingestion_path).each do |subdirectory_path|
           move_a_record(subdirectory_path)
         end
-        geofile_ingestion_dir_path
+      rescue StandardError => e
+        logger.error "An unexpected error occurred while moving geofiles to #{geofile_ingestion_path}: #{e.message}"
       end
 
       def move_a_record(dir_path)
@@ -57,14 +73,15 @@ module Gingr
         end
       end
 
-      # remove the subdirectory if it exists
-      def clr_subdirectory(zip_file)
+      def directory_path(zip_file)
         subdir_name = File.basename(zip_file, '.*')
-        subdir_path = File.join(@processing_root, subdir_name)
-        FileUtils.rm_r(subdir_path) if File.directory? subdir_path
-        subdir_path
+        File.join(@processing_root, subdir_name)
+      end
+
+      def clr_directory(directory_name)
+        FileUtils.rm_r(directory_name) if File.directory? directory_name
       rescue Errno::EACCES
-        logger.error("Permission denied: #{subdir_path}")
+        logger.error("Permission denied to clear #{directory_name}")
         raise
       end
 
@@ -76,7 +93,7 @@ module Gingr
         Pathname(directory_path).children.select(&:file?)
       end
 
-      def get_geofile_name_hash(directory_path)
+      def geofile_access_hash(directory_path)
         public_names = []
         ucb_names = []
         subdirectory_list(directory_path).each do |sub_dir|
@@ -92,14 +109,12 @@ module Gingr
         value == 'public' ? 'public' : 'UCB'
       end
 
-      private
-
       def geoblacklight_hash(dir)
         json_filepath = File.join(dir, 'geoblacklight.json')
         json_data = File.read(json_filepath)
         JSON.parse(json_data)
       end
-
+      
       def name_access_hash(dir)
         basename = File.basename(dir).split('_').last
         json_hash = geoblacklight_hash(dir)
