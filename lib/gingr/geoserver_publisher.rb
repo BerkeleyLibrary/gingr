@@ -11,9 +11,10 @@ module Gingr
     DEFAULT_REMOTE_ROOT = '/srv/geofiles'
     DEFAULT_WORKSPACE = 'UCB'
 
-    attr_reader :connection
-    attr_reader :remote_root
-    attr_reader :workspace_name
+    attr_reader :connection, :remote_root, :workspace_name
+    
+    # attr_reader :remote_root
+    # attr_reader :workspace_name
 
     class << self
       def publish_inventory(inventory, geoserver_url: nil, geoserver_secure_url: nil)
