@@ -80,13 +80,7 @@ module Gingr
     option :geoserver_root
     def unpack(zipfile)
       zipfile_path = zipfile == File.basename(zipfile) ? File.join(ImportUtil.root_path, 'import', zipfile) : zipfile
-      DataHandler.spatial_root = options[:spatial_root] || ENV.fetch('SPATIAL_ROOT',
-                                                                     Config.default_options[:spatial_root])
-      DataHandler.geoserver_root = options[:geoserver_root] || ENV.fetch('GEOSERVER_ROOT',
-                                                                         Config.default_options[:geoserver_root])
-
-      gingr_watch_root_dir ||= ENV['GINGR_WATCH_DIRECTORY'] || '/opt/app/data/gingr'
-      DataHandler.processing_root = File.join(gingr_watch_root_dir, 'processing')
+      set_data_handler(options[:spatial_root], options[:geoserver_root])
       DataHandler.extract_and_move(zipfile_path)
     end
 
@@ -107,11 +101,14 @@ module Gingr
     option :geoserver_secure_url
     def all(zipfile)
       unpacked = unpack(zipfile)
-      solr(unpacked[:extract_to_path])
+      total_indexed = solr(unpacked[:extract_to_path])
 
       geofile_names = unpacked[:geofile_name_hash]
       geoserver_urls = options.slice(:geoserver_url, :geoserver_secure_url).transform_keys(&:to_sym)
-      Gingr::GeoserverPublisher.publish_inventory(geofile_names, **geoserver_urls)
+      failed_files = Gingr::GeoserverPublisher.publish_inventory(geofile_names, **geoserver_urls)
+
+      logger.info("Total ingested records: #{total_indexed}")
+      logger.error("#{failed_files.join(';')} failed published to geoservers.") unless failed_files.empty?
       logger.info("#{zipfile} - all imported")
     end
 
@@ -125,6 +122,17 @@ module Gingr
       default = options[:is_public] ? :geoserver_url : :geoserver_secure_url
       publisher = GeoserverPublisher.new(options[:geoserver_url], default:, workspace_name:)
       publisher.create_workspace
+    end
+
+    private
+
+    def set_data_handler(spatial_root, goserver_root)
+      DataHandler.spatial_root = spatial_root || ENV.fetch('SPATIAL_ROOT',
+                                                           Config.default_options[:spatial_root])
+      DataHandler.geoserver_root = goserver_root || ENV.fetch('GEOSERVER_ROOT',
+                                                              Config.default_options[:geoserver_root])
+      gingr_watch_root_dir ||= ENV['GINGR_WATCH_DIRECTORY'] || '/opt/app/data/gingr'
+      DataHandler.processing_root = File.join(gingr_watch_root_dir, 'processing')
     end
   end
 end

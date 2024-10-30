@@ -34,11 +34,20 @@ module Gingr
       raise
     end
 
+    # def index_directory(directory)
+    #   Find.find(directory)
+    #     .select(&method(:json_file?))
+    #     .each(&method(:add))
+    #   @solr.commit
+    # end
+
     def index_directory(directory)
-      Find.find(directory)
-        .select(&method(:json_file?))
-        .each(&method(:add))
+      total_indexed = Find.find(directory)
+                          .select(&method(:json_file?))
+                          .each(&method(:add))
+                          .size
       @solr.commit
+      total_indexed
     end
 
     def update_reference_urls!(doc)

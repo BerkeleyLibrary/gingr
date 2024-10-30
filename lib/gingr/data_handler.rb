@@ -35,7 +35,7 @@ module Gingr
           filename = summ[:map_filename]
           summ[:public_access] ? public_map_files << filename : ucb_map_files << filename
         end
-        { public: public_map_files.compact.reject(&:empty?), ucb: ucb_map_files.compact.reject(&:empty?) }
+        { public_files: public_map_files.compact.reject(&:empty?), ucb_files: ucb_map_files.compact.reject(&:empty?) }
       end
 
       # Extacting ingestion zip file to processing directory

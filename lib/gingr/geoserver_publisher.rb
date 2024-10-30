@@ -12,21 +12,23 @@ module Gingr
     DEFAULT_WORKSPACE = 'UCB'
 
     attr_reader :connection, :remote_root, :workspace_name
-    
-    # attr_reader :remote_root
-    # attr_reader :workspace_name
 
     class << self
       def publish_inventory(inventory, geoserver_url: nil, geoserver_secure_url: nil)
-        if !inventory[:public].empty?
+        public_files = inventory[:public_files]
+        ucb_files = inventory[:ucb_files]
+        un_published_shapefiles = []
+        un_published_geotiffs = []
+        unless public_files.empty?
           public_publisher = new(geoserver_url)
-          public_publisher.batch_publish(inventory[:public])
+          un_published_shapefiles = public_publisher.batch_publish(public_files)
         end
 
-        if !inventory[:ucb].empty?
+        unless ucb_files.empty?
           secure_publisher = new(geoserver_secure_url, default: :geoserver_secure_url)
-          secure_publisher.batch_publish(inventory[:ucb])
+          un_published_geotiffs = secure_publisher.batch_publish(ucb_files)
         end
+        (un_published_shapefiles + un_published_geotiffs).compact
       end
 
       def parse_connection_string(geoserver_baseurl)
@@ -40,7 +42,7 @@ module Gingr
           port: uri.port == uri.default_port ? nil : uri.port,
           path: uri.path,
           fragment: uri.fragment,
-          query: uri.query,
+          query: uri.query
         ).to_s, uri.user, uri.password
       end
     end
@@ -64,17 +66,15 @@ module Gingr
     end
 
     def batch_publish(filenames)
-      filenames.each(&method(:publish))
+      filenames.map(&method(:publish))
     end
-
+    
     def publish(filename)
       id = File.basename(filename, '.*')
       file_path = remote_filepath(id, filename)
-      if File.extname(filename).casecmp?('.shp')
-        publish_shapefile(file_path, id)
-      else
-        publish_geotiff(file_path, id)
-      end
+      return publish_shapefile(file_path, id) if File.extname(filename).casecmp?('.shp')
+
+      publish_geotiff(file_path, id)
     end
 
     def create_workspace
@@ -93,11 +93,19 @@ module Gingr
     def publish_shapefile(file_path, id)
       logger.debug("Publishing shapefile #{id} to #{geoserver_url}")
       Geoserver::Publish.shapefile(connection:, workspace_name:, file_path:, id:, title: id)
+      nil
+    rescue StandardError => e
+      logger.error("Error publishing shapefile #{file_path} to #{geoserver_url}: #{e.message}")
+      file_path
     end
 
     def publish_geotiff(file_path, id)
       logger.debug("Publishing geotiff #{id} to #{geoserver_url}")
       Geoserver::Publish.geotiff(connection:, workspace_name:, file_path:, id:, title: id)
+      nil
+    rescue StandardError => e
+      logger.error("Error publishing GeoTIFF #{file_path} to #{geoserver_url}: #{e.message}")
+      file_path
     end
 
     def remote_filepath(id, filename)
