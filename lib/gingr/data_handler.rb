@@ -57,7 +57,7 @@ module Gingr
         from_geofile_ingestion_path = File.join(extract_to_path, Config.geofile_ingestion_dirname)
         subdirectory_list(from_geofile_ingestion_path).map { |dir| move_a_record(dir) }
       rescue StandardError => e
-        logger.error "An error occurred while extracting and moving files to #{geofile_ingestion_path}: #{e.message}"
+        logger.error "An error occurred while extracting and moving files from #{from_geofile_ingestion_path}: #{e.message}"
       end
 
       def extract_zipfile(zip_file, to_dir = @processing_root)
