@@ -48,6 +48,9 @@ module Gingr
                           .size
       @solr.commit
       total_indexed
+    rescue StandardError => e
+      logger.error "Indexing directory '#{directory}' failed: #{e.message}"
+      nil
     end
 
     def update_reference_urls!(doc)

@@ -107,9 +107,10 @@ module Gingr
       geoserver_urls = options.slice(:geoserver_url, :geoserver_secure_url).transform_keys(&:to_sym)
       failed_files = Gingr::GeoserverPublisher.publish_inventory(geofile_names, **geoserver_urls)
 
-      logger.info("Total ingested records: #{total_indexed}")
-      logger.error("#{failed_files.join(';')} failed published to geoservers.") unless failed_files.empty?
-      logger.info("#{zipfile} - all imported")
+      report(total_indexed, failed_files, zipfile)
+      # logger.info("Total ingested records: #{total_indexed}")
+      # logger.error("#{failed_files.join(';')} failed published to geoservers.") unless failed_files.empty?
+      # logger.info("#{zipfile} - all imported")
     end
 
     desc 'geoserver_workspace', 'create a workspace in a geoserver'
@@ -133,6 +134,19 @@ module Gingr
                                                               Config.default_options[:geoserver_root])
       gingr_watch_root_dir ||= ENV['GINGR_WATCH_DIRECTORY'] || '/opt/app/data/gingr'
       DataHandler.processing_root = File.join(gingr_watch_root_dir, 'processing')
+    end
+
+    def report(total_indexed, failed_files, zipfile)
+      if total_indexed.nil?
+        logger.error('Solr indexing failed')
+        logger.info("#{zipfile} - not imported")
+        return
+      end
+      logger.info("#{zipfile} - all imported, total records: #{total_indexed}")
+      return if failed_files.empty?
+
+      logger.warn("#{zipfile} - some shapefile or GeoTIFF files not published to Geoservers")
+      logger.error("Failed to published geo files: #{failed_files.join('; ')}")
     end
   end
 end
