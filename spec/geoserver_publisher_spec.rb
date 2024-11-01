@@ -106,8 +106,12 @@ RSpec.describe Gingr::GeoserverPublisher do
 
     around do |test|
       workspace_client.create(workspace_name:)
+      Gingr::DataHandler.processing_root = '/opt/app/tmp'
+      Gingr::DataHandler.spatial_root = '/opt/app/data/spatial'
+      Gingr::DataHandler.geoserver_root = '/opt/app/data/geoserver'
       Gingr::DataHandler.extract_and_move('spec/fixture/zipfile/vector_restricted_with_attachment.zip')
       Gingr::DataHandler.extract_and_move('spec/fixture/zipfile/vector.zip')
+      # Gingr::DataHandler.extract_and_move('spec/fixture/zipfile/raster_public.zip')
       test.run
     ensure
       workspace_client.delete(workspace_name:)
@@ -122,9 +126,9 @@ RSpec.describe Gingr::GeoserverPublisher do
         subject.batch_publish %w(fk4hm6vj5q.shp fk4cv64r2x.shp)
       end
 
-      it 'publishes a raster file' do
-        pending 'Missing datafile'
-        subject.publish '{TO BE CREATED}.rst'
+      !it 'publishes a raster file' do
+        # pending 'Missing datafile'
+        subject.publish 'fk4mk7zb4q.tif'
       end
     end
 
