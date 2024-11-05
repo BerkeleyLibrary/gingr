@@ -8,8 +8,7 @@ module Gingr
   class SolrIndexer
     include Logging
 
-    attr_accessor :reference_urls
-    attr_accessor :solr
+    attr_accessor :reference_urls, :solr
 
     def initialize(connection = nil, refurls = nil)
       connection ||= Gingr::Config.getopt(:solr_url)
@@ -28,13 +27,21 @@ module Gingr
       logger.debug("Indexing document: #{doc['id']}")
       update_reference_urls!(doc)
       @solr.add doc
+    rescue StandardError => e
+      logger.error "Indexing document '#{doc['id']}' failed: #{e.message}"
+      raise
     end
 
     def index_directory(directory)
-      Find.find(directory)
-        .select(&method(:json_file?))
-        .each(&method(:add))
+      total_indexed = Find.find(directory)
+                          .select(&method(:json_file?))
+                          .each(&method(:add))
+                          .size
       @solr.commit
+      total_indexed
+    rescue StandardError => e
+      logger.error "Indexing directory '#{directory}' failed: #{e.message}"
+      nil
     end
 
     def update_reference_urls!(doc)

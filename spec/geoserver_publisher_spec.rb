@@ -106,8 +106,12 @@ RSpec.describe Gingr::GeoserverPublisher do
 
     around do |test|
       workspace_client.create(workspace_name:)
+      Gingr::DataHandler.processing_root = '/opt/app/tmp'
+      Gingr::DataHandler.spatial_root = '/opt/app/data/spatial'
+      Gingr::DataHandler.geoserver_root = '/opt/app/data/geoserver'
       Gingr::DataHandler.extract_and_move('spec/fixture/zipfile/vector_restricted_with_attachment.zip')
       Gingr::DataHandler.extract_and_move('spec/fixture/zipfile/vector.zip')
+      Gingr::DataHandler.extract_and_move('spec/fixture/zipfile/raster_public.zip')
       test.run
     ensure
       workspace_client.delete(workspace_name:)
@@ -115,16 +119,15 @@ RSpec.describe Gingr::GeoserverPublisher do
 
     context 'with a public geoserver' do
       it 'publishes a shapefile' do
-        subject.publish 'fk4hm6vj5q.shp'
+        expect(subject.publish('fk4hm6vj5q.shp')).to be_nil
       end
 
       it 'publishes a batch of shapefiles' do
-        subject.batch_publish %w(fk4hm6vj5q.shp fk4cv64r2x.shp)
+        expect(subject.batch_publish(%w[fk4hm6vj5q.shp fk4cv64r2x.shp])).to all(be_nil)
       end
 
       it 'publishes a raster file' do
-        pending 'Missing datafile'
-        subject.publish '{TO BE CREATED}.rst'
+        expect(subject.publish('fk4mk7zb4q.tif')).to be_nil
       end
     end
 
@@ -132,7 +135,7 @@ RSpec.describe Gingr::GeoserverPublisher do
       let(:default) { :geoserver_secure_url }
 
       it 'publishes a shapefile' do
-        subject.publish 's76412.shp'
+        expect(subject.publish('s76412.shp')).to be_nil
       end
     end
   end
