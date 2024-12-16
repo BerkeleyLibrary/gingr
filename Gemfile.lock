@@ -189,7 +189,7 @@ DEPENDENCIES
   pry (~> 0.14.2)
   rsolr
   rspec (~> 3.12)
-  rubyzip (= 3.0.0.alpha)
+  rubyzip (~> 3.0.0.alpha)
   uri
 
 RUBY VERSION
