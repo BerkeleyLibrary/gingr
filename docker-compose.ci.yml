@@ -1,0 +1,16 @@
+---
+
+services:
+  app:
+    build: !reset
+    image: ${DOCKER_APP_IMAGE}
+    volumes: !reset
+    volumes:
+      - artifacts:/opt/app/artifacts
+
+  geoserver: !reset
+
+  geoserver-secure: !reset
+
+volumes:
+  artifacts:
