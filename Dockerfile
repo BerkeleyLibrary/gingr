@@ -12,5 +12,5 @@ COPY  .ruby-version Gemfile* ./
 RUN bundle install
 COPY  . .
 
-ENV PATH "/opt/app/bin:$PATH"
+ENV PATH="/opt/app/bin:$PATH"
 CMD ["gingr", "help"]

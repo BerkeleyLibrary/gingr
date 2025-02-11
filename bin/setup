@@ -1,0 +1,3 @@
+#!/usr/bin/env ruby
+
+# Empty stub to satisfy GitHub Actions docker-ci workflow requirements

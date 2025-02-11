@@ -1,0 +1,22 @@
+#!/usr/bin/env ruby
+APP_ROOT = File.expand_path('..', __dir__)
+$LOAD_PATH << File.join(APP_ROOT, 'lib')
+
+require 'gingr'
+require 'timeout'
+
+def wait_for_solr!(seconds = 10)
+  Timeout.timeout(seconds) do
+    begin
+      idx = Gingr::SolrIndexer.new
+      idx.solr.get 'select'
+    rescue
+      retry
+    end
+  end
+end
+
+Dir.chdir(APP_ROOT) do
+  wait_for_solr!
+  system 'rspec --format html --out artifacts/rspec.html'
+end
