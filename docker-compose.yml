@@ -37,14 +37,14 @@ services:
       - ./data/spatial:/usr/local/apache2/htdocs/:ro
 
   geoserver:
-    image: containers.lib.berkeley.edu/gis/geoserver:latest
+    image: containers.lib.berkeley.edu/gis/geoserver:production
     ports:
       - 8080:8080
     volumes:
       - ./data/geoserver/public:/srv/geofiles:delegated
 
   geoserver-secure:
-    image: containers.lib.berkeley.edu/gis/geoserver:latest
+    image: containers.lib.berkeley.edu/gis/geoserver:production
     ports:
       - 8081:8080
     volumes:

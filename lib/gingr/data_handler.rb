@@ -20,8 +20,11 @@ module Gingr
       attr_accessor :spatial_root, :geoserver_root, :processing_root
 
       def extract_and_move(zip_file)
+        puts(zip_file)
         extract_to_path = perform_extraction(zip_file)
+        puts(extract_to_path)
         summary = prepare_publishing_files(extract_to_path)
+        puts(summary)
         geofile_name_hash = analyze_summary(summary)
         { extract_to_path:, geofile_name_hash: }
       end
@@ -70,26 +73,51 @@ module Gingr
         logger.error "An unexpected error occurred during unzip #{zip_file}: #{e.message}"
         raise
       end
-      
-      # some records may no have a map.zip files
+     
+      # some records may not have data.zip and map.zip files
       def move_a_record(dir_path)
-        attributes = record_attributes(dir_path)
+        attributes = record_info(dir_path)
         arkid = File.basename(dir_path).strip
         map_filename = nil
         souredata_moved = false
 
         subfile_list(dir_path).each do |file|
           filename = File.basename(file)
-          map_filename = move_map_file(file, arkid, attributes) if filename == 'map.zip'
-          souredata_moved = move_source_file(file, arkid, attributes[:public_access]) if filename == 'data.zip'
+          if filename == 'map.zip'
+            map_filename = move_map_file(file, arkid, attributes) 
+          else
+            souredata_moved = move_source_file(file, arkid, attributes[:public_access])
+          end
         end
         logger.warning " '#{arkid} has no map.zip file, please check" if map_filename.nil?
         logger.warning " '#{arkid} has no data.zip file, please check" unless souredata_moved
         { public_access: attributes[:public_access], map_filename: }
       end
+      
+
+      # def move_files_to_geoserver(files, arkid, attributes)
+      #   files.each do |file|
+      #     filename = File.basename(file)
+      #     return move_map_file(file, arkid, attributes) if filename == 'map.zip'
+      #   end
+      #   nil
+      # end
+
+      # def move_files_to_spatial(files, arkid, public_access)
+      #   filename = File.basename(file)
+      #   souredata_moved = false
+      #   files.each do |file|
+      #     unless filename == 'map.zip'
+      #       move_source_file(file, arkid, public_access)
+      #       souredata_moved = true if filename == 'data.zip'
+      #     end
+      #   end
+      #   souredata_moved
+      # end
 
       def move_map_file(file, arkid, attributes)
-        dest_dir_path = file_path(@geoserver_root, arkid, attributes[:public_access])
+        dirname = attributes[:public_access] ? 'public' : 'UCB'
+        dest_dir_path = file_path(@geoserver_root, arkid, dirname)
         unzip_map_files(dest_dir_path, file)
         format = attributes[:format].downcase
         ext = format == 'shapefile' ? '.shp' : '.tif'
@@ -100,13 +128,23 @@ module Gingr
       end
 
       def move_source_file(file, arkid, public_access)
-        dest_dir_path = file_path(@spatial_root, arkid, public_access)
+        dirname = source_dest_dirname(file, public_access)
+        dest_dir_path = file_path(@spatial_root, arkid, dirname)
         mv_spatial_file(dest_dir_path, file)
         true
       rescue StandardError => e
         logger.error "Failed to move soucedata '#{file}' for '#{arkid}': #{e.message}"
       end
-      
+
+      def source_dest_dirname(file, public_access)
+        return 'public' if public_access
+
+        filename = File.basename(file)
+        return 'UCB' if %w[data.zip map.zip geoblacklight.json].include?(filename)
+
+        'metadata'
+      end
+
       def clr_directory(directory_name)
         FileUtils.rm_r(directory_name) if File.directory? directory_name
       rescue Errno::EACCES
@@ -122,7 +160,7 @@ module Gingr
         Pathname(directory_path).children.select(&:file?)
       end
 
-      def record_attributes(dir)
+      def record_info(dir)
         json_filepath = File.join(dir, 'geoblacklight.json')
         json_data = File.read(json_filepath)
         json_hash = JSON.parse(json_data)
@@ -142,12 +180,10 @@ module Gingr
         FileUtils.cp(file, to_file)
       end
 
-      def file_path(root, arkid, public_access )
-        #  geofiles/spatial/{UCB,public}/berkeley-{arkID}
-        type = public_access ? 'public' : 'UCB'
-        File.join(root, type, "berkeley-#{arkid}")
+      def file_path(root, arkid, dirname)
+        File.join(root, dirname, "berkeley-#{arkid}")
       end
-    
+
     end
   end
 end
