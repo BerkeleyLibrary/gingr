@@ -20,11 +20,8 @@ module Gingr
       attr_accessor :spatial_root, :geoserver_root, :processing_root
 
       def extract_and_move(zip_file)
-        puts(zip_file)
         extract_to_path = perform_extraction(zip_file)
-        puts(extract_to_path)
         summary = prepare_publishing_files(extract_to_path)
-        puts(summary)
         geofile_name_hash = analyze_summary(summary)
         { extract_to_path:, geofile_name_hash: }
       end
@@ -93,27 +90,6 @@ module Gingr
         logger.warning " '#{arkid} has no data.zip file, please check" unless souredata_moved
         { public_access: attributes[:public_access], map_filename: }
       end
-      
-
-      # def move_files_to_geoserver(files, arkid, attributes)
-      #   files.each do |file|
-      #     filename = File.basename(file)
-      #     return move_map_file(file, arkid, attributes) if filename == 'map.zip'
-      #   end
-      #   nil
-      # end
-
-      # def move_files_to_spatial(files, arkid, public_access)
-      #   filename = File.basename(file)
-      #   souredata_moved = false
-      #   files.each do |file|
-      #     unless filename == 'map.zip'
-      #       move_source_file(file, arkid, public_access)
-      #       souredata_moved = true if filename == 'data.zip'
-      #     end
-      #   end
-      #   souredata_moved
-      # end
 
       def move_map_file(file, arkid, attributes)
         dirname = attributes[:public_access] ? 'public' : 'UCB'
@@ -137,12 +113,11 @@ module Gingr
       end
 
       def source_dest_dirname(file, public_access)
-        return 'public' if public_access
-
         filename = File.basename(file)
-        return 'UCB' if %w[data.zip map.zip geoblacklight.json].include?(filename)
-
-        'metadata'
+        return 'metadata' unless %w[data.zip map.zip geoblacklight.json].include?(filename)
+        return 'public' if public_access
+        
+        'UCB'
       end
 
       def clr_directory(directory_name)
