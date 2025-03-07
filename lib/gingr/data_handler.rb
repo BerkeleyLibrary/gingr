@@ -59,10 +59,13 @@ module Gingr
       rescue StandardError => e
         logger.error "An error occurred while extracting and moving files from #{from_geofile_ingestion_path}: #{e.message}"
       end
-
-      def extract_zipfile(zip_file, to_dir = @processing_root)
+     
+      def extract_zipfile(zip_file, to_dir: @processing_root, is_flatten: false)
         Zip::File.open(zip_file) do |zip|
           zip.each do |entry|
+            next if entry.directory? && is_flatten
+
+            entry.name = File.basename(entry.name) if is_flatten
             entry.extract(destination_directory: to_dir) { true }
           end
         end
@@ -70,8 +73,7 @@ module Gingr
         logger.error "An unexpected error occurred during unzip #{zip_file}: #{e.message}"
         raise
       end
-     
-      # some records may not have data.zip and map.zip files
+      # some records may not have data.zip or map.zip files
       def move_a_record(dir_path)
         attributes = record_info(dir_path)
         arkid = File.basename(dir_path).strip
@@ -113,9 +115,10 @@ module Gingr
       end
 
       def source_dest_dirname(file, public_access)
+        return 'public' if public_access
+        
         filename = File.basename(file)
         return 'metadata' unless %w[data.zip map.zip geoblacklight.json].include?(filename)
-        return 'public' if public_access
         
         'UCB'
       end
@@ -146,7 +149,7 @@ module Gingr
 
       def unzip_map_files(dest_dir, map_zipfile)
         FileUtils.mkdir_p(dest_dir) unless File.directory? dest_dir
-        extract_zipfile(map_zipfile, dest_dir)
+        extract_zipfile(map_zipfile, to_dir:dest_dir, is_flatten:true)
       end
 
       def mv_spatial_file(dest_dir, file)
