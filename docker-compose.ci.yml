@@ -4,8 +4,7 @@ services:
   app:
     build: !reset
     image: ${DOCKER_APP_IMAGE}
-    volumes: !reset
-    volumes:
+    volumes: !override
       - artifacts:/opt/app/artifacts
 
   geoserver: !reset
