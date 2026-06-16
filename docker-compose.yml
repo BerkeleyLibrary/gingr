@@ -51,8 +51,7 @@ services:
       - ./data/spatial:/usr/local/apache2/htdocs/:ro
 
   geoserver:
-    image: containers.lib.berkeley.edu/gis/geoserver:production
-    platform: linux/amd64
+    image: ghcr.io/berkeleylibrary/geoserver:latest
     ports:
       - 8080:8080
     healthcheck:
@@ -60,13 +59,12 @@ services:
       interval: 15s
       timeout: 10s
       retries: 10
-      start_period: 120s
+      start_period: 30s
     volumes:
       - ./data/geoserver/public:/srv/geofiles:delegated
 
   geoserver-secure:
-    image: containers.lib.berkeley.edu/gis/geoserver:production
-    platform: linux/amd64
+    image: ghcr.io/berkeleylibrary/geoserver:latest
     ports:
       - 8081:8080
     healthcheck:
@@ -74,6 +72,6 @@ services:
       interval: 15s
       timeout: 10s
       retries: 10
-      start_period: 120s
+      start_period: 30s
     volumes:
       - ./data/geoserver/UCB:/srv/geofiles:delegated

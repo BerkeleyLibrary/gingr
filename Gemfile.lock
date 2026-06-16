@@ -78,7 +78,7 @@ GEM
       rsolr
       sanitize
       thor
-    geoserver-publish (0.7.0)
+    geoserver-publish (1.0.0)
       faraday (~> 2.2)
     git (4.3.2)
       activesupport (>= 5.0)
@@ -138,9 +138,10 @@ GEM
     prism (1.9.0)
     process_executer (4.0.4)
       track_open_instances (~> 0.1)
-    pry (0.14.2)
+    pry (0.16.0)
       coderay (~> 1.1)
       method_source (~> 1.0)
+      reline (>= 0.6.0)
     psych (5.4.0)
       date
       stringio
@@ -222,12 +223,12 @@ PLATFORMS
 
 DEPENDENCIES
   berkeley_library-docker (~> 0.2.0)
-  berkeley_library-logging (~> 0.2)
+  berkeley_library-logging (~> 0.3)
   faraday-net_http_persistent (~> 2.0)
   geo_combine
-  geoserver-publish (~> 0.7.0)
+  geoserver-publish (~> 1.0)
   listen (~> 3.8)
-  pry (~> 0.14.2)
+  pry (~> 0.16)
   rsolr
   rspec (~> 3.12)
   rubyzip (~> 3.0)
