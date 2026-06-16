@@ -1,9 +1,13 @@
 ---
-
 services:
   app:
     build: !reset
     image: ${DOCKER_APP_IMAGE}
+    depends_on: !override
+      solr:
+        condition: service_healthy
+      spatial:
+        condition: service_started
     volumes: !override
       - artifacts:/opt/app/artifacts
 
