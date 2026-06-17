@@ -135,7 +135,7 @@ RSpec.describe Gingr::GeoserverPublisher do
       let(:default) { :geoserver_secure_url }
 
       it 'publishes a shapefile' do
-        expect(subject.publish('s76412.shp')).to be_nil
+        expect(subject.publish('s76412fk.shp')).to be_nil
       end
     end
   end

@@ -1,8 +1,16 @@
 ---
-
 services:
   app:
     build: .
+    depends_on:
+      solr:
+        condition: service_healthy
+      spatial:
+        condition: service_started
+      geoserver:
+        condition: service_healthy
+      geoserver-secure:
+        condition: service_healthy
     command:
       - tail
       - -f
@@ -26,6 +34,12 @@ services:
     ports:
       - 8983:8983
     restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8983/solr/"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
     volumes:
       - ./solr:/opt/solr/server/solr/configsets:ro
 
@@ -37,15 +51,27 @@ services:
       - ./data/spatial:/usr/local/apache2/htdocs/:ro
 
   geoserver:
-    image: containers.lib.berkeley.edu/gis/geoserver:production
+    image: ghcr.io/berkeleylibrary/geoserver:latest
     ports:
       - 8080:8080
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/geoserver/web/"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
     volumes:
       - ./data/geoserver/public:/srv/geofiles:delegated
 
   geoserver-secure:
-    image: containers.lib.berkeley.edu/gis/geoserver:production
+    image: ghcr.io/berkeleylibrary/geoserver:latest
     ports:
       - 8081:8080
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/geoserver/web/"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
     volumes:
       - ./data/geoserver/UCB:/srv/geofiles:delegated
