@@ -7,6 +7,7 @@
 .bundle/*
 ./local/*
 .DS_Store
+.env
 
 /data/*
 !/data/gingr
