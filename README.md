@@ -7,8 +7,14 @@ Command-line tool for ingesting GeoData (Solr, GeoServer, and file servers).
 The app is Dockerized with an image designed to just run the `gingr` executable:
 
 ```sh
+# set your env and then make any changes necessary.
+cp .env.example .env
+
 # Build the image
 docker compose build
+
+# First time you run locally, you need to seed the OIDC config files and restart geoserver.
+docker compose up -d && ./bin/add-keycloak-to-geoserver.sh
 
 # Use `docker compose watch` to automatically rebuild on changes. This takes over the terminal
 # you run it in, so you'll need to either background it (`screen` works great) or open a different window.

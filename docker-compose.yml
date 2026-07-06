@@ -54,6 +54,7 @@ services:
 
   geoserver:
     image: docker.osgeo.org/geoserver:2.28-latest
+    # entrypoint: ["bash", "/opt/geoserver-with-oidc-seed.sh"]
     ports:
       - 8080:8080
     environment: &geoserver-environment
@@ -61,6 +62,7 @@ services:
       SKIP_DEMO_DATA: "true"
       INSTALL_EXTENSIONS: "true"
       COMMUNITY_EXTENSIONS: "sec-oidc"
+      PROXY_BASE_URL:
     depends_on:
       keycloak-config:
         condition: service_completed_successfully
@@ -73,7 +75,11 @@ services:
     extra_hosts:
       - keycloak.localhost:host-gateway
     volumes:
-      - ./data/geoserver/geoserver_data:/opt/geoserver_data
+      # - ./bin/geoserver-with-oidc-seed.sh:/opt/geoserver-with-oidc-seed.sh:ro
+      # - ./data/geoserver/geoserver_data:/opt/geoserver_data
+      - ./data/geoserver/geoserver_oidc_seed:/opt/seed
+      # - ./data/geoserver/geoserver_oidc_seed/security/config.xml:/opt/geoserver_data/security/config.xml:ro
+      # - ./data/geoserver/geoserver_oidc_seed/security/filter/keycloak/config.xml:/opt/geoserver_data/security/filter/keycloak/config.xml:ro
       - ./data/geoserver/public:/srv/geofiles
 
   geoserver-secure:
@@ -93,7 +99,7 @@ services:
     extra_hosts:
       - keycloak.localhost:host-gateway
     volumes:
-      - ./data/geoserver/geoserver_secure_data:/opt/geoserver_data
+      # - ./data/geoserver/geoserver_secure_data:/opt/geoserver_data
       - ./data/geoserver/UCB:/srv/geofiles
 
   postgres:
