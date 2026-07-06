@@ -75,11 +75,7 @@ services:
     extra_hosts:
       - keycloak.localhost:host-gateway
     volumes:
-      # - ./bin/geoserver-with-oidc-seed.sh:/opt/geoserver-with-oidc-seed.sh:ro
-      # - ./data/geoserver/geoserver_data:/opt/geoserver_data
       - ./data/geoserver/geoserver_oidc_seed:/opt/seed
-      # - ./data/geoserver/geoserver_oidc_seed/security/config.xml:/opt/geoserver_data/security/config.xml:ro
-      # - ./data/geoserver/geoserver_oidc_seed/security/filter/keycloak/config.xml:/opt/geoserver_data/security/filter/keycloak/config.xml:ro
       - ./data/geoserver/public:/srv/geofiles
 
   geoserver-secure:
@@ -99,7 +95,6 @@ services:
     extra_hosts:
       - keycloak.localhost:host-gateway
     volumes:
-      # - ./data/geoserver/geoserver_secure_data:/opt/geoserver_data
       - ./data/geoserver/UCB:/srv/geofiles
 
   postgres:
