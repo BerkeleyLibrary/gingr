@@ -15,5 +15,13 @@ services:
 
   geoserver-secure: !reset
 
+  geoserver-config: !reset
+
+  postgres: !reset
+
+  keycloak: !reset
+
+  keycloak-config: !reset
+
 volumes:
   artifacts:
