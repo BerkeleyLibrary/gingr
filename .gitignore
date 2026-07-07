@@ -17,12 +17,7 @@
 /data/gingr/processing/*
 !/data/geoserver/
 /data/geoserver/*
-!/data/geoserver/geoserver_oidc_seed/
 !/data/geoserver/keycloak/
-
-# !data/geoserver/geoserver_oidc_seed/security/config.xml
-# !data/geoserver/geoserver_oidc_seed/security/filter/keycloak/config.xml
-# !data/geoserver/keycloak/config/berkeley-local.yaml
 
 /solr/geodata-test/data
 /solr/geodata-test/data
