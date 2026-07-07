@@ -1,8 +1,19 @@
-<oauth2LoginAuthentication>
-  <id>-5c6b9fa7:19f233f931b:-7fe3</id>
+#!/usr/bin/env sh
+set -eu
+
+GEOSERVER_REST="${GEOSERVER_REST:-http://geoserver:8080/geoserver/rest}"
+GEOSERVER_AUTH="${GEOSERVER_AUTH:-admin:geoserver}"
+
+echo "Creating keycloak OIDC auth filter..."
+HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+  --request POST \
+  --url "${GEOSERVER_REST}/security/authfilters" \
+  --user "${GEOSERVER_AUTH}" \
+  --header 'Content-Type: application/xml; charset=utf-8' \
+  --data "<org.geoserver.security.oauth2.login.GeoServerOAuth2LoginFilterConfig>
   <name>keycloak</name>
   <className>org.geoserver.security.oauth2.login.GeoServerOAuth2LoginAuthenticationFilter</className>
-  <roleSource class="org.geoserver.security.oauth2.login.GeoServerOAuth2LoginFilterConfig$OpenIdRoleSource">IdToken</roleSource>
+  <roleSource class=\"org.geoserver.security.oauth2.login.GeoServerOAuth2LoginFilterConfig\$OpenIdRoleSource\">IdToken</roleSource>
   <baseRedirectUri>http://localhost:8080/geoserver/</baseRedirectUri>
   <googleEnabled>false</googleEnabled>
   <googleUserNameAttribute>email</googleUserNameAttribute>
@@ -15,8 +26,8 @@
   <msRedirectUri>http://localhost:8080/geoserver/web/login/oauth2/code/microsoft</msRedirectUri>
   <msScopes>openid profile email</msScopes>
   <oidcEnabled>true</oidcEnabled>
-  <oidcClientId>geoserver-local</oidcClientId>
-  <oidcClientSecret>change-me</oidcClientSecret>
+  <oidcClientId>${OIDC_CLIENT_ID}</oidcClientId>
+  <oidcClientSecret>${OIDC_CLIENT_SECRET}</oidcClientSecret>
   <oidcUserNameAttribute>email</oidcUserNameAttribute>
   <oidcRedirectUri>http://localhost:8080/geoserver/web/login/oauth2/code/oidc</oidcRedirectUri>
   <oidcScopes>openid  berkeley_edu_groups email profile</oidcScopes>
@@ -39,4 +50,29 @@
   <msGraphAppRoleAssignments>false</msGraphAppRoleAssignments>
   <roleConverterString>testadmin=ADMIN</roleConverterString>
   <onlyExternalListedRoles>false</onlyExternalListedRoles>
-</oauth2LoginAuthentication>
+</org.geoserver.security.oauth2.login.GeoServerOAuth2LoginFilterConfig>")
+
+case "$HTTP_STATUS" in
+  200|201) echo "Auth filter created." ;;
+  *)   echo "ERROR: Unexpected status creating auth filter: $HTTP_STATUS"; exit 1 ;;
+esac
+
+echo "Updating web filter chain..."
+FILTER_CHAIN_UPDATE_HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+  --request PUT \
+  --url "${GEOSERVER_REST}/security/filterchain/web" \
+  --user "${GEOSERVER_AUTH}" \
+  --header 'Content-Type: application/xml; charset=utf-8' \
+  --data '<filters name="web" class="org.geoserver.security.HtmlLoginFilterChain" path="/web/**,/gwc/rest/web/**,/" disabled="false" allowSessionCreation="true" ssl="false" matchHTTPMethod="false" interceptorName="interceptor" exceptionTranslationName="exception">
+    <filter>rememberme</filter>
+    <filter>form</filter>
+    <filter>keycloak</filter>
+    <filter>anonymous</filter>
+  </filters>')
+
+case "$FILTER_CHAIN_UPDATE_HTTP_STATUS" in
+  200) echo "Web filter chain updated." ;;
+  *)   echo "ERROR: Unexpected status updating web filter chain: $FILTER_CHAIN_UPDATE_HTTP_STATUS"; exit 1 ;;
+esac
+
+echo "Done."

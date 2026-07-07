@@ -61,7 +61,7 @@ clients:
 groups:
   - name: "$(OIDC_ADMIN_GROUP)"
   - name: "$(OIDC_USER_GROUP)"
-  - name: cn=edu:berkeley:org:libr:unrelated:group,ou=campus groups,dc=berkeley,dc=edu
+  - name: "cn=edu:berkeley:org:libr:unrelated:group,ou=campus groups,dc=berkeley,dc=edu"
 
 users:
   - username: testadmin
