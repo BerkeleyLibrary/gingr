@@ -111,7 +111,7 @@ services:
       - ./bin/geoserver-oidc-config.sh:/scripts/geoserver-oidc-config.sh:ro
 
   postgres:
-    image: postgres:16-alpine
+    image: postgres:18-alpine
     environment:
       POSTGRES_DB: keycloak
       POSTGRES_USER: keycloak
