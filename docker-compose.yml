@@ -109,6 +109,8 @@ services:
     environment:
       OIDC_CLIENT_ID: ${OIDC_CLIENT_ID}
       OIDC_CLIENT_SECRET: ${OIDC_CLIENT_SECRET}
+      OIDC_SECURE_CLIENT_ID: ${OIDC_SECURE_CLIENT_ID}
+      OIDC_SECURE_CLIENT_SECRET: ${OIDC_SECURE_CLIENT_SECRET}
     restart: on-failure:3
     volumes:
       - ./bin/geoserver-oidc-config.sh:/scripts/geoserver-oidc-config.sh:ro
@@ -176,6 +178,8 @@ services:
       IMPORT_VAR_SUBSTITUTION_ENABLED: "true"
       OIDC_CLIENT_ID: ${OIDC_CLIENT_ID}
       OIDC_CLIENT_SECRET: ${OIDC_CLIENT_SECRET}
+      OIDC_SECURE_CLIENT_ID: ${OIDC_SECURE_CLIENT_ID}
+      OIDC_SECURE_CLIENT_SECRET: ${OIDC_SECURE_CLIENT_SECRET}
       OIDC_ADMIN_GROUP: ${OIDC_ADMIN_GROUP}
       OIDC_USER_GROUP: ${OIDC_USER_GROUP}
     image: adorsys/keycloak-config-cli:latest-26.1.0

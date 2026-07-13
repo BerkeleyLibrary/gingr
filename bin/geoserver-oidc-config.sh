@@ -7,6 +7,15 @@ GEOSERVER_AUTH="${GEOSERVER_AUTH:-admin:geoserver}"
 # and configured exactly the same.
 for GEOSERVER_HOST in geoserver geoserver-secure; do
   GEOSERVER_REST="http://${GEOSERVER_HOST}:8080/geoserver/rest"
+  if [ "$GEOSERVER_HOST" = "geoserver-secure" ]; then
+    CLIENT_ID="${OIDC_SECURE_CLIENT_ID}"
+    CLIENT_SECRET="${OIDC_SECURE_CLIENT_SECRET}"
+    HOST_PORT="8081"
+  else
+    CLIENT_ID="${OIDC_CLIENT_ID}"
+    CLIENT_SECRET="${OIDC_CLIENT_SECRET}"
+    HOST_PORT="8080"
+  fi
 
   echo "Creating keycloak OIDC auth filter on ${GEOSERVER_HOST}..."
   HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
@@ -18,22 +27,22 @@ for GEOSERVER_HOST in geoserver geoserver-secure; do
     <name>keycloak</name>
     <className>org.geoserver.security.oauth2.login.GeoServerOAuth2LoginAuthenticationFilter</className>
     <roleSource class=\"org.geoserver.security.oauth2.login.GeoServerOAuth2LoginFilterConfig\$OpenIdRoleSource\">IdToken</roleSource>
-    <baseRedirectUri>http://localhost:8080/geoserver/</baseRedirectUri>
+    <baseRedirectUri>http://localhost:${HOST_PORT}/geoserver/</baseRedirectUri>
     <googleEnabled>false</googleEnabled>
     <googleUserNameAttribute>email</googleUserNameAttribute>
-    <googleRedirectUri>http://localhost:8080/geoserver/web/login/oauth2/code/google</googleRedirectUri>
+    <googleRedirectUri>http://localhost:${HOST_PORT}/geoserver/web/login/oauth2/code/google</googleRedirectUri>
     <gitHubEnabled>false</gitHubEnabled>
     <gitHubUserNameAttribute>id</gitHubUserNameAttribute>
-    <gitHubRedirectUri>http://localhost:8080/geoserver/web/login/oauth2/code/gitHub</gitHubRedirectUri>
+    <gitHubRedirectUri>http://localhost:${HOST_PORT}/geoserver/web/login/oauth2/code/gitHub</gitHubRedirectUri>
     <msEnabled>false</msEnabled>
     <msUserNameAttribute>sub</msUserNameAttribute>
-    <msRedirectUri>http://localhost:8080/geoserver/web/login/oauth2/code/microsoft</msRedirectUri>
+    <msRedirectUri>http://localhost:${HOST_PORT}/geoserver/web/login/oauth2/code/microsoft</msRedirectUri>
     <msScopes>openid profile email</msScopes>
     <oidcEnabled>true</oidcEnabled>
-    <oidcClientId>${OIDC_CLIENT_ID}</oidcClientId>
-    <oidcClientSecret>${OIDC_CLIENT_SECRET}</oidcClientSecret>
+    <oidcClientId>${CLIENT_ID}</oidcClientId>
+    <oidcClientSecret>${CLIENT_SECRET}</oidcClientSecret>
     <oidcUserNameAttribute>email</oidcUserNameAttribute>
-    <oidcRedirectUri>http://localhost:8080/geoserver/web/login/oauth2/code/oidc</oidcRedirectUri>
+    <oidcRedirectUri>http://localhost:${HOST_PORT}/geoserver/web/login/oauth2/code/oidc</oidcRedirectUri>
     <oidcScopes>openid  berkeley_edu_groups email profile</oidcScopes>
     <oidcDiscoveryUri>http://keycloak:8180/realms/berkeley-local/.well-known/openid-configuration</oidcDiscoveryUri>
     <oidcTokenUri>http://keycloak:8180/realms/berkeley-local/protocol/openid-connect/token</oidcTokenUri>
@@ -48,7 +57,7 @@ for GEOSERVER_HOST in geoserver geoserver-secure; do
     <oidcAuthenticationMethodPostSecret>false</oidcAuthenticationMethodPostSecret>
     <oidcAllowUnSecureLogging>false</oidcAllowUnSecureLogging>
     <tokenRolesClaim>preferred_username</tokenRolesClaim>
-    <postLogoutRedirectUri>http://localhost:8080/geoserver/web/</postLogoutRedirectUri>
+    <postLogoutRedirectUri>http://localhost:${HOST_PORT}/geoserver/web/</postLogoutRedirectUri>
     <enableRedirectAuthenticationEntryPoint>true</enableRedirectAuthenticationEntryPoint>
     <msGraphMemberOf>false</msGraphMemberOf>
     <msGraphAppRoleAssignments>false</msGraphAppRoleAssignments>
